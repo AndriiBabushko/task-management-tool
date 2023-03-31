@@ -28,7 +28,7 @@ const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  return res.json({ task: task.toObject({ getters: true }) });
+  return res.json({ task: task.toObject({ getters: true }), success: true });
 };
 
 const getTasksByCreatorId = async (
@@ -56,7 +56,10 @@ const getTasksByCreatorId = async (
     );
   }
 
-  return res.json({ tasks: tasks.map((t) => t.toObject({ getters: true })) });
+  return res.json({
+    tasks: tasks.map((t) => t.toObject({ getters: true })),
+    success: true,
+  });
 };
 
 const getTasks = async (req: Request, res: Response, next: NextFunction) => {
@@ -73,7 +76,10 @@ const getTasks = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  return res.json({ tasks: tasks.map((t) => t.toObject({ getters: true })) });
+  return res.json({
+    tasks: tasks.map((t) => t.toObject({ getters: true })),
+    success: true,
+  });
 };
 
 const createTask = async (req: Request, res: Response, next: NextFunction) => {
@@ -139,7 +145,7 @@ const createTask = async (req: Request, res: Response, next: NextFunction) => {
     session.startTransaction();
     await createdTask.save({ session });
     user.tasks.push(createdTask);
-    await user.save( { session });
+    await user.save({ session });
     await session.commitTransaction();
   } catch (e) {
     return next(
@@ -152,7 +158,7 @@ const createTask = async (req: Request, res: Response, next: NextFunction) => {
 
   return res
     .status(201)
-    .json({ task: createdTask.toObject({ getters: true }) });
+    .json({ task: createdTask.toObject({ getters: true }), success: true });
 };
 
 const updateTaskByID = async (
@@ -199,7 +205,9 @@ const updateTaskByID = async (
     );
   }
 
-  return res.status(200).json({ task: task.toObject({ getters: true }) });
+  return res
+    .status(200)
+    .json({ task: task.toObject({ getters: true }), success: true });
 };
 
 const deleteTaskByID = async (
@@ -242,7 +250,10 @@ const deleteTaskByID = async (
 
   return res
     .status(200)
-    .json({ message: `Successful deleted task with ${taskID} ID.` });
+    .json({
+      message: `Successful deleted task with ${taskID} ID.`,
+      success: true,
+    });
 };
 
 export {

@@ -62,7 +62,7 @@ var getTaskById = function (req, res, next) { return __awaiter(void 0, void 0, v
                 if (!task) {
                     return [2 /*return*/, next(new http_error_model_1.default("Couldn't find a task for the provided task ID!", 404))];
                 }
-                return [2 /*return*/, res.json({ task: task.toObject({ getters: true }) })];
+                return [2 /*return*/, res.json({ task: task.toObject({ getters: true }), success: true })];
         }
     });
 }); };
@@ -87,7 +87,10 @@ var getTasksByCreatorId = function (req, res, next) { return __awaiter(void 0, v
                 if (!tasks || tasks.length == 0) {
                     return [2 /*return*/, next(new http_error_model_1.default("Couldn't find tasks for the provided user ID!", 422))];
                 }
-                return [2 /*return*/, res.json({ tasks: tasks.map(function (t) { return t.toObject({ getters: true }); }) })];
+                return [2 /*return*/, res.json({
+                        tasks: tasks.map(function (t) { return t.toObject({ getters: true }); }),
+                        success: true,
+                    })];
         }
     });
 }); };
@@ -105,7 +108,10 @@ var getTasks = function (req, res, next) { return __awaiter(void 0, void 0, void
             case 2:
                 e_2 = _a.sent();
                 return [2 /*return*/, next(new http_error_model_1.default("Something went wrong while fetching tasks data from DB.", 500))];
-            case 3: return [2 /*return*/, res.json({ tasks: tasks.map(function (t) { return t.toObject({ getters: true }); }) })];
+            case 3: return [2 /*return*/, res.json({
+                    tasks: tasks.map(function (t) { return t.toObject({ getters: true }); }),
+                    success: true,
+                })];
         }
     });
 }); };
@@ -173,7 +179,7 @@ var createTask = function (req, res, next) { return __awaiter(void 0, void 0, vo
                 return [2 /*return*/, next(new http_error_model_1.default("Creating task failed. Pls check credentials and try again.", 500))];
             case 11: return [2 /*return*/, res
                     .status(201)
-                    .json({ task: createdTask.toObject({ getters: true }) })];
+                    .json({ task: createdTask.toObject({ getters: true }), success: true })];
         }
     });
 }); };
@@ -215,7 +221,9 @@ var updateTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
             case 7:
                 e_6 = _b.sent();
                 return [2 /*return*/, next(new http_error_model_1.default("Something went wrong while updating task.", 500))];
-            case 8: return [2 /*return*/, res.status(200).json({ task: task.toObject({ getters: true }) })];
+            case 8: return [2 /*return*/, res
+                    .status(200)
+                    .json({ task: task.toObject({ getters: true }), success: true })];
         }
     });
 }); };
@@ -263,7 +271,10 @@ var deleteTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
                 return [2 /*return*/, next(new http_error_model_1.default("Something went wrong while deleting task.", 500))];
             case 11: return [2 /*return*/, res
                     .status(200)
-                    .json({ message: "Successful deleted task with ".concat(taskID, " ID.") })];
+                    .json({
+                    message: "Successful deleted task with ".concat(taskID, " ID."),
+                    success: true,
+                })];
         }
     });
 }); };
