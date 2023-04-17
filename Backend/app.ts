@@ -1,15 +1,16 @@
-import HttpError from "./models/http-error-model";
 import * as bodyParser from "body-parser";
 import * as express from "express";
-import {Express, NextFunction, Request, Response} from "express";
+import { Express, NextFunction, Request, Response } from "express";
 import { connect as mongooseConnect } from "mongoose";
 import { config as dotenvConfig } from "dotenv";
+
+import HttpError from "./models/http-error-model";
+import { router as tasksRouter } from "./routes/tasks-routes";
+import { router as usersRouter } from "./routes/users-routes";
 
 dotenvConfig();
 const mongoURL: string = process.env.MONGO_URL;
 const port: string = process.env.PORT;
-const tasksRouter = require("./routes/tasks-routes");
-const usersRouter = require("./routes/users-routes");
 
 const app: Express = express();
 

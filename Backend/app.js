@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_error_model_1 = require("./models/http-error-model");
 var bodyParser = require("body-parser");
 var express = require("express");
 var mongoose_1 = require("mongoose");
 var dotenv_1 = require("dotenv");
+var http_error_model_1 = require("./models/http-error-model");
+var tasks_routes_1 = require("./routes/tasks-routes");
+var users_routes_1 = require("./routes/users-routes");
 (0, dotenv_1.config)();
 var mongoURL = process.env.MONGO_URL;
 var port = process.env.PORT;
-var tasksRouter = require("./routes/tasks-routes");
-var usersRouter = require("./routes/users-routes");
 var app = express();
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
@@ -18,8 +18,8 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
     next();
 });
-app.use("/api/tasks", tasksRouter);
-app.use("/api/users", usersRouter);
+app.use("/api/tasks", tasks_routes_1.router);
+app.use("/api/users", users_routes_1.router);
 app.use(function (req, res, next) {
     return next(new http_error_model_1.default("Couldn't find this route.", 404));
 });
