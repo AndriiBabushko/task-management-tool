@@ -1,10 +1,11 @@
 import validator from "validator";
 import { NextFunction, Request, Response } from "express";
-import { startSession } from "mongoose";
+import { ClientSession, startSession } from "mongoose";
 
 import HttpError from "../models/http-error-model";
 import { mongooseModel as TaskModel } from "../models/task-model";
 import { mongooseModel as UserModel } from "../models/user-model";
+import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest";
 
 const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
   const taskID: string = req.params.taskID;
@@ -82,20 +83,23 @@ const getTasks = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-const createTask = async (req: Request, res: Response, next: NextFunction) => {
+const createTask = async (
+  req: IUserDataRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const {
     title,
     description,
     deadlineDate,
-    creator,
     tags,
   }: {
     title: string;
     description: string;
     deadlineDate: string;
-    creator: string;
     tags: string[];
   } = req.body;
+  const { userId } = req.userData;
 
   try {
     if (validator.isEmpty(title))
@@ -121,13 +125,13 @@ const createTask = async (req: Request, res: Response, next: NextFunction) => {
     description,
     creationDate: new Date(),
     deadlineDate: new Date(deadlineDate),
-    creator,
+    creator: userId,
     tags,
   });
   let user;
 
   try {
-    user = await UserModel.findById(creator);
+    user = await UserModel.findById(userId);
   } catch (e) {
     return next(
       new HttpError(
@@ -137,11 +141,11 @@ const createTask = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  if(!user)
-    return next(new HttpError("Couldn't find user for provided id.", 404))
+  if (!user)
+    return next(new HttpError("Couldn't find user for provided id.", 404));
 
   try {
-    const session = await startSession();
+    const session: ClientSession = await startSession();
     session.startTransaction();
     await createdTask.save({ session });
     user.tasks.push(createdTask);
@@ -162,14 +166,15 @@ const createTask = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateTaskByID = async (
-  req: Request,
+  req: IUserDataRequest,
   res: Response,
   next: NextFunction
 ) => {
   const { title, description }: { title: string; description: string } =
     req.body;
   let task;
-  const taskID = req.params.taskID;
+  const taskID: string = req.params.taskID;
+  const { userId } = req.userData;
 
   if (validator.isEmpty(title))
     return next(new HttpError("Task title is empty!", 422));
@@ -178,7 +183,7 @@ const updateTaskByID = async (
     return next(new HttpError("Task description is empty!", 422));
 
   try {
-    task = await TaskModel.findById(taskID);
+    task = await TaskModel.findById(taskID).populate("creator");
   } catch (e) {
     return next(
       new HttpError(
@@ -191,6 +196,15 @@ const updateTaskByID = async (
   if (!task) {
     return next(
       new HttpError("Couldn't find a task for the provided task ID!", 404)
+    );
+  }
+
+  if (task.creator._id != userId) {
+    return next(
+      new HttpError(
+        "No access to change task. Different user and creator id's.",
+        404
+      )
     );
   }
 
@@ -211,12 +225,13 @@ const updateTaskByID = async (
 };
 
 const deleteTaskByID = async (
-  req: Request,
+  req: IUserDataRequest,
   res: Response,
   next: NextFunction
 ) => {
   let task;
-  const taskID = req.params.taskID;
+  const taskID: string = req.params.taskID;
+  const { userId } = req.userData;
 
   try {
     task = await TaskModel.findById(taskID).populate("creator");
@@ -235,8 +250,17 @@ const deleteTaskByID = async (
     );
   }
 
+  if (task.creator._id != userId) {
+    return next(
+      new HttpError(
+        "No access to delete task. Different user and creator id's.",
+        404
+      )
+    );
+  }
+
   try {
-    const session = await startSession();
+    const session: ClientSession = await startSession();
     session.startTransaction();
     await task.deleteOne({ session });
     task.creator.tasks.pull(task);
@@ -248,12 +272,10 @@ const deleteTaskByID = async (
     );
   }
 
-  return res
-    .status(200)
-    .json({
-      message: `Successful deleted task with ${taskID} ID.`,
-      success: true,
-    });
+  return res.status(200).json({
+    message: `Successful deleted task with ${taskID} ID.`,
+    success: true,
+  });
 };
 
 export {

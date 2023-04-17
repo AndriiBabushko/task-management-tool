@@ -117,11 +117,12 @@ var getTasks = function (req, res, next) { return __awaiter(void 0, void 0, void
 }); };
 exports.getTasks = getTasks;
 var createTask = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, title, description, deadlineDate, creator, tags, createdTask, user, e_3, session, e_4;
+    var _a, title, description, deadlineDate, tags, userId, createdTask, user, e_3, session, e_4;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _a = req.body, title = _a.title, description = _a.description, deadlineDate = _a.deadlineDate, creator = _a.creator, tags = _a.tags;
+                _a = req.body, title = _a.title, description = _a.description, deadlineDate = _a.deadlineDate, tags = _a.tags;
+                userId = req.userData.userId;
                 try {
                     if (validator_1.default.isEmpty(title))
                         return [2 /*return*/, next(new http_error_model_1.default("Task title is empty!", 422))];
@@ -140,13 +141,13 @@ var createTask = function (req, res, next) { return __awaiter(void 0, void 0, vo
                     description: description,
                     creationDate: new Date(),
                     deadlineDate: new Date(deadlineDate),
-                    creator: creator,
+                    creator: userId,
                     tags: tags,
                 });
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, user_model_1.mongooseModel.findById(creator)];
+                return [4 /*yield*/, user_model_1.mongooseModel.findById(userId)];
             case 2:
                 user = _b.sent();
                 return [3 /*break*/, 4];
@@ -185,12 +186,13 @@ var createTask = function (req, res, next) { return __awaiter(void 0, void 0, vo
 }); };
 exports.createTask = createTask;
 var updateTaskByID = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, title, description, task, taskID, e_5, e_6;
+    var _a, title, description, task, taskID, userId, e_5, e_6;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, title = _a.title, description = _a.description;
                 taskID = req.params.taskID;
+                userId = req.userData.userId;
                 if (validator_1.default.isEmpty(title))
                     return [2 /*return*/, next(new http_error_model_1.default("Task title is empty!", 422))];
                 if (validator_1.default.isEmpty(description))
@@ -198,7 +200,7 @@ var updateTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, task_model_1.mongooseModel.findById(taskID)];
+                return [4 /*yield*/, task_model_1.mongooseModel.findById(taskID).populate("creator")];
             case 2:
                 task = _b.sent();
                 return [3 /*break*/, 4];
@@ -208,6 +210,9 @@ var updateTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
             case 4:
                 if (!task) {
                     return [2 /*return*/, next(new http_error_model_1.default("Couldn't find a task for the provided task ID!", 404))];
+                }
+                if (task.creator._id != userId) {
+                    return [2 /*return*/, next(new http_error_model_1.default("No access to change task. Different user and creator id's.", 404))];
                 }
                 task.title = title;
                 task.description = description;
@@ -229,11 +234,12 @@ var updateTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
 }); };
 exports.updateTaskByID = updateTaskByID;
 var deleteTaskByID = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var task, taskID, e_7, session, e_8;
+    var task, taskID, userId, e_7, session, e_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 taskID = req.params.taskID;
+                userId = req.userData.userId;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
@@ -247,6 +253,9 @@ var deleteTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
             case 4:
                 if (!task) {
                     return [2 /*return*/, next(new http_error_model_1.default("Couldn't find a task for the provided task ID!", 404))];
+                }
+                if (task.creator._id != userId) {
+                    return [2 /*return*/, next(new http_error_model_1.default("No access to delete task. Different user and creator id's.", 404))];
                 }
                 _a.label = 5;
             case 5:
@@ -269,9 +278,7 @@ var deleteTaskByID = function (req, res, next) { return __awaiter(void 0, void 0
             case 10:
                 e_8 = _a.sent();
                 return [2 /*return*/, next(new http_error_model_1.default("Something went wrong while deleting task.", 500))];
-            case 11: return [2 /*return*/, res
-                    .status(200)
-                    .json({
+            case 11: return [2 /*return*/, res.status(200).json({
                     message: "Successful deleted task with ".concat(taskID, " ID."),
                     success: true,
                 })];

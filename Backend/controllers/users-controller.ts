@@ -77,8 +77,6 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
     password: cryptPassword,
   });
 
-  console.log(createdUser.toObject());
-
   try {
     await createdUser.save();
   } catch (e) {
@@ -89,8 +87,6 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
       )
     );
   }
-
-  console.log(createdUser);
 
   let token;
   try {
@@ -171,7 +167,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError("Logging in failed! Please try again.", 500));
   }
 
-  res.json({
+  return res.json({
     userId: indentifiedUser.id,
     email: indentifiedUser.email,
     token,

@@ -106,7 +106,6 @@ var signup = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                     image: "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
                     password: cryptPassword,
                 });
-                console.log(createdUser.toObject());
                 _b.label = 9;
             case 9:
                 _b.trys.push([9, 11, , 12]);
@@ -118,7 +117,6 @@ var signup = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                 e_4 = _b.sent();
                 return [2 /*return*/, next(new http_error_model_1.default("Signing up failed. Please check credentials and try again.", 500))];
             case 12:
-                console.log(createdUser);
                 try {
                     token = jwt.sign({ userId: createdUser.id, email: createdUser.email }, "task_management_tool_token", { expiresIn: "1h" });
                 }
@@ -181,14 +179,13 @@ var login = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                 catch (e) {
                     return [2 /*return*/, next(new http_error_model_1.default("Logging in failed! Please try again.", 500))];
                 }
-                res.json({
-                    userId: indentifiedUser.id,
-                    email: indentifiedUser.email,
-                    token: token,
-                    message: "Successfully logged in!",
-                    success: true,
-                });
-                return [2 /*return*/];
+                return [2 /*return*/, res.json({
+                        userId: indentifiedUser.id,
+                        email: indentifiedUser.email,
+                        token: token,
+                        message: "Successfully logged in!",
+                        success: true,
+                    })];
         }
     });
 }); };
