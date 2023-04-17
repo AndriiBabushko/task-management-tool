@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
 var express_1 = require("express");
 var tasksControllers = require("../controllers/tasks-controller");
 var check_auth_1 = require("../middleware/check-auth");
 var router = (0, express_1.Router)();
+exports.router = router;
 router.get("/all", tasksControllers.getTasks);
 router.get("/:taskID", tasksControllers.getTaskById);
 router.get("/user/:creatorID", tasksControllers.getTasksByCreatorId);
@@ -11,4 +13,3 @@ router.use(check_auth_1.checkJWT);
 router.post("/", tasksControllers.createTask);
 router.patch("/:taskID", tasksControllers.updateTaskByID);
 router.delete("/:taskID", tasksControllers.deleteTaskByID);
-module.exports = router;

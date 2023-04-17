@@ -19,4 +19,4 @@ router.patch("/:taskID", tasksControllers.updateTaskByID);
 
 router.delete("/:taskID", tasksControllers.deleteTaskByID);
 
-module.exports = router;
+export { router };
