@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "target": "ES2022",
+    "sourceMap": true,
+    "outDir": "./build",
+    "allowSyntheticDefaultImports": true,
+    "removeComments": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules/*"
+  ],
+  "ts-node": {
+    "esm": true
+  }
+}
