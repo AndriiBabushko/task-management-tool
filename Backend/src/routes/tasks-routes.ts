@@ -1,11 +1,11 @@
 import {Router} from "express";
 
-import * as tasksControllers from "../controllers/tasks-controller";
-import { checkJWT as checkAuth } from "../middleware/check-auth"
+import * as tasksControllers from "../controllers/tasks-controller.js";
+import { checkJWT as checkAuth } from "../middlewares/auth-middleware.js"
 
 const router: Router = Router();
 
-router.get("/all", tasksControllers.getTasks);
+router.get("/", tasksControllers.getTasks);
 
 router.get("/:taskID", tasksControllers.getTaskById);
 

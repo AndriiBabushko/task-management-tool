@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import * as jwt from "jsonwebtoken";
 
-import HttpError from "../models/http-error-model";
-import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest";
+import HttpError from "../exceptions/http-error.js";
+import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest.js";
 
 export const checkJWT = (
   req: IUserDataRequest,

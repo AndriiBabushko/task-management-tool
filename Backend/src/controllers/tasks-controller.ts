@@ -1,11 +1,11 @@
-import validator from "validator";
 import { NextFunction, Request, Response } from "express";
 import { ClientSession, startSession } from "mongoose";
 
-import HttpError from "../models/http-error-model";
-import { mongooseModel as TaskModel } from "../models/task-model";
-import { mongooseModel as UserModel } from "../models/user-model";
-import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest";
+import HttpError from "../exceptions/http-error.js";
+import { mongooseModel as TaskModel } from "../models/task-model.js";
+import { mongooseModel as UserModel } from "../models/user-model.js";
+import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest.js";
+import { ITask } from "../ts/interfaces/ITask.js";
 
 const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
   const taskID: string = req.params.taskID;
@@ -13,7 +13,7 @@ const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
   let task;
 
   try {
-    task = await TaskModel.findById(taskID);
+    task = await TaskModel.findById(taskID).populate("creator");
   } catch (e) {
     return next(
       new HttpError(
@@ -29,7 +29,9 @@ const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  return res.json({ task: task.toObject({ getters: true }), success: true });
+  return res
+    .status(201)
+    .json({ task: task.toObject({ getters: true }), success: true });
 };
 
 const getTasksByCreatorId = async (
@@ -57,7 +59,7 @@ const getTasksByCreatorId = async (
     );
   }
 
-  return res.json({
+  return res.status(201).json({
     tasks: tasks.map((t) => t.toObject({ getters: true })),
     success: true,
   });
@@ -88,32 +90,22 @@ const createTask = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    title,
-    description,
-    deadlineDate,
-    tags,
-  }: {
-    title: string;
-    description: string;
-    deadlineDate: string;
-    tags: string[];
-  } = req.body;
+  const { title, description, deadlineDate, tags }: ITask = req.body;
   const { userId } = req.userData;
 
   try {
-    if (validator.isEmpty(title))
-      return next(new HttpError("Task title is empty!", 422));
-
-    if (validator.isEmpty(description))
-      return next(new HttpError("Task description is empty!", 422));
-
-    if (
-      !validator.isDate(deadlineDate) ||
-      validator.isEmpty(deadlineDate) ||
-      new Date(deadlineDate).getTime() <= new Date().getTime()
-    )
-      return next(new HttpError("Task deadline date is invalid!", 422));
+    // if (validator.isEmpty(title))
+    //   return next(new HttpError("Task title is empty!", 422));
+    //
+    // if (validator.isEmpty(description))
+    //   return next(new HttpError("Task description is empty!", 422));
+    //
+    // if (
+    //   !validator.isDate(deadlineDate.toString()) ||
+    //   validator.isEmpty(deadlineDate.toString()) ||
+    //   new Date(deadlineDate).getTime() <= new Date().getTime()
+    // )
+    //   return next(new HttpError("Task deadline date is invalid!", 422));
   } catch (e) {
     return next(
       new HttpError("Something went wrong while checking task data.", 500)
@@ -170,17 +162,10 @@ const updateTaskByID = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, description }: { title: string; description: string } =
-    req.body;
-  let task;
+  const { title, description = undefined }: ITask = req.body;
   const taskID: string = req.params.taskID;
   const { userId } = req.userData;
-
-  if (validator.isEmpty(title))
-    return next(new HttpError("Task title is empty!", 422));
-
-  if (validator.isEmpty(description))
-    return next(new HttpError("Task description is empty!", 422));
+  let task;
 
   try {
     task = await TaskModel.findById(taskID).populate("creator");
@@ -208,8 +193,12 @@ const updateTaskByID = async (
     );
   }
 
+  // if (validator.isEmpty(title))
+  //   return next(new HttpError("Task title is empty!", 422));
+  //
+  // if (!validator.isEmpty(description)) task.description = description;
+
   task.title = title;
-  task.description = description;
 
   try {
     await task.save();
@@ -272,7 +261,7 @@ const deleteTaskByID = async (
     );
   }
 
-  return res.status(200).json({
+  return res.status(201).json({
     message: `Successful deleted task with ${taskID} ID.`,
     success: true,
   });
