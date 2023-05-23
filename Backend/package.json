@@ -3,30 +3,68 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "type": "module",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "test": "cross-env NODE_ENV=test mocha",
+    "dev": "cross-env NODE_ENV=development npx nodemon",
+    "build": "rimraf ./build && npx tsc",
+    "start": "npm run build && node build/app",
+    "lint": "npx eslint ./src",
+    "format": "mpx eslint ./src --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndriiBabushko/task-management-tool"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv-flow": "^3.2.0",
     "express": "^4.18.2",
+    "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.1.0",
     "mongoose": "^7.0.2",
+    "nodemailer": "^6.9.2",
     "peers": "^0.1.0",
     "uuid": "^9.0.0",
     "validator": "^13.9.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cors": "^2.8.13",
+    "@types/dotenv-flow": "^3.2.0",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.1",
+    "@types/nodemailer": "^6.4.8",
+    "@types/uuid": "^9.0.1",
     "@types/validator": "^13.7.14",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "dotenv": "^16.0.3",
-    "nodemon": "^2.0.21"
+    "eslint": "^8.41.0",
+    "husky": "^8.0.3",
+    "mocha": "^10.2.0",
+    "mongodb-memory-server": "^8.12.2",
+    "nodemon": "^2.0.21",
+    "prettier": "^2.8.8",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1"
   }
 }
