@@ -1,20 +1,20 @@
-import {Router} from "express";
+import { Router } from 'express';
 
-import * as categoriesController from "../controllers/categories-controller.js";
-import { checkJWT as checkAuth} from "../middlewares/auth-middleware.js";
+import * as categoriesController from '../controllers/categories-controller.js';
+import { AuthMiddleware as checkAuth } from '../middlewares/auth-middleware.js';
 
 const router: Router = Router();
 
-router.get("/", categoriesController.getCategories);
+router.get('/', categoriesController.getCategories);
 
-router.get("/:categoryID", categoriesController.getCategoryById);
+router.get('/:categoryID', categoriesController.getCategoryById);
 
 router.use(checkAuth);
 
-router.post("/", categoriesController.createCategory);
+router.post('/', categoriesController.createCategory);
 
-router.patch("/:categoryID", categoriesController.updateCategoryById);
+router.patch('/:categoryID', categoriesController.updateCategoryById);
 
-router.delete("/:categoryID", categoriesController.deleteCategoryById);
+router.delete('/:categoryID', categoriesController.deleteCategoryById);
 
-export {router};
+export { router };

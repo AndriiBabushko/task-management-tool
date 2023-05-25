@@ -1,22 +1,27 @@
-import {Router} from "express";
+import { Router } from 'express';
 
-import * as tasksControllers from "../controllers/tasks-controller.js";
-import { checkJWT as checkAuth } from "../middlewares/auth-middleware.js"
+import * as tasksControllers from '../controllers/tasks-controller.js';
+import { AuthMiddleware } from '../middlewares/auth-middleware.js';
+import { body, ValidationChain } from 'express-validator';
 
 const router: Router = Router();
+const taskHandlers: ValidationChain[] = [
+  body('title').isLength({ min: 3, max: 30 }),
+  body('deadlineDate').optional().isDate(),
+  body('tags').optional().isArray(),
+  body('access').optional().isBoolean(),
+];
 
-router.get("/", tasksControllers.getTasks);
+router.get('/:taskID', tasksControllers.getTaskById);
 
-router.get("/:taskID", tasksControllers.getTaskById);
+router.get('/user/:creatorID', tasksControllers.getTasksByCreatorId);
 
-router.get("/user/:creatorID", tasksControllers.getTasksByCreatorId);
+router.get('/', AuthMiddleware, tasksControllers.getTasks);
 
-router.use(checkAuth);
+router.post('/', taskHandlers, AuthMiddleware, tasksControllers.createTask);
 
-router.post("/", tasksControllers.createTask);
+router.patch('/:taskID', taskHandlers, AuthMiddleware, tasksControllers.updateTaskByID);
 
-router.patch("/:taskID", tasksControllers.updateTaskByID);
-
-router.delete("/:taskID", tasksControllers.deleteTaskByID);
+router.delete('/:taskID', AuthMiddleware, tasksControllers.deleteTaskByID);
 
 export { router };

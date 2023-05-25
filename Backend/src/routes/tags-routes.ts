@@ -1,20 +1,20 @@
-import {Router} from "express";
+import { Router } from 'express';
 
-import * as tagsController from "../controllers/tags-controller.js";
-import { checkJWT as checkAuth} from "../middlewares/auth-middleware.js";
+import * as tagsController from '../controllers/tags-controller.js';
+import { AuthMiddleware as checkAuth } from '../middlewares/auth-middleware.js';
 
 const router: Router = Router();
 
-router.get("/", tagsController.getTags);
+router.get('/', tagsController.getTags);
 
-router.get("/:tagID", tagsController.getTagById);
+router.get('/:tagID', tagsController.getTagById);
 
 router.use(checkAuth);
 
-router.post("/", tagsController.createTag);
+router.post('/', tagsController.createTag);
 
-router.patch("/:tagID", tagsController.updateTagById);
+router.patch('/:tagID', tagsController.updateTagById);
 
-router.delete("/:tagID", tagsController.deleteTagById);
+router.delete('/:tagID', tagsController.deleteTagById);
 
-export {router};
+export { router };

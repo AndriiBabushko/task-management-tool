@@ -1,20 +1,20 @@
-import {Router} from "express";
+import { Router } from 'express';
 
-import * as rolesController from "../controllers/roles-controller.js";
-import { checkJWT as checkAuth} from "../middlewares/auth-middleware.js";
+import * as rolesController from '../controllers/roles-controller.js';
+import { AuthMiddleware as checkAuth } from '../middlewares/auth-middleware.js';
 
 const router: Router = Router();
 
-router.get("/", rolesController.getRoles);
+router.get('/', rolesController.getRoles);
 
-router.get("/:roleID", rolesController.getRoleById);
+router.get('/:roleID', rolesController.getRoleById);
 
 router.use(checkAuth);
 
-router.post("/", rolesController.createRole);
+router.post('/', rolesController.createRole);
 
-router.patch("/:roleID", rolesController.updateRoleById);
+router.patch('/:roleID', rolesController.updateRoleById);
 
-router.delete("/:roleID", rolesController.deleteRoleById);
+router.delete('/:roleID', rolesController.deleteRoleById);
 
-export {router};
+export { router };
