@@ -1,8 +1,5 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 export interface IUserDataRequest extends Request {
-  userData: {
-    userId: string
-  },
-  token: string
+  user;
 }
