@@ -1,30 +1,23 @@
-import { NextFunction, Response } from "express";
-import * as jwt from "jsonwebtoken";
+import { NextFunction, Response } from 'express';
 
-import HttpError from "../exceptions/http-error.js";
-import { IUserDataRequest } from "../ts/interfaces/IUserDataRequest.js";
+import HttpError from '../exceptions/http-error.js';
+import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
+import TokenService from '../services/token-service.js';
 
-export const checkJWT = (
-  req: IUserDataRequest,
-  res: Response,
-  next: NextFunction
-): void => {
-  let token: string;
-  let userId;
-
+export const AuthMiddleware = (req: IUserDataRequest, res: Response, next: NextFunction): void => {
   try {
-    token = req.headers.authorization.split(" ")[1]; // Authorization: 'Bearer TOKEN'
+    const authHeader: string = req.headers.authorization;
+    if (!authHeader) return next(HttpError.UnauthorizedError());
 
-    if (!token) return next(new HttpError("Authentication failed!", 401));
+    const accessToken: string = authHeader.split(' ')[1];
+    if (!accessToken) return next(HttpError.UnauthorizedError());
 
-    userId = jwt.verify(token, "task_management_tool_token");
+    const userData = TokenService.validateAccessToken(accessToken);
+    if (!userData) return next(HttpError.UnauthorizedError());
 
-    req.userData = userId;
-    req.token = token;
+    req.user = userData;
+    next();
   } catch (e) {
-    console.log(e.message);
-    return next(new HttpError("Authentication failed!", 401));
+    return next(e);
   }
-
-  next();
 };
