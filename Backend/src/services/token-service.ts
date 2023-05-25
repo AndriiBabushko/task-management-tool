@@ -1,14 +1,15 @@
-import * as jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-import { mongooseModel as TokenModel } from "../models/token-model.js";
+import { mongooseModel as TokenModel } from '../models/token-model.js';
+import HttpError from '../exceptions/http-error.js';
 
 class TokenService {
   generateTokens(payload) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: "30m",
+    const accessToken: string = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
+      expiresIn: '30s',
     });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: "30d",
+    const refreshToken: string = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: '30d',
     });
 
     return {
@@ -17,7 +18,31 @@ class TokenService {
     };
   }
 
-  async saveToken(userID, refreshToken) {
+  validateRefreshToken(refreshToken: string) {
+    let userData;
+
+    try {
+      userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (e) {
+      return null;
+    }
+
+    return userData;
+  }
+
+  validateAccessToken(accessToken: string) {
+    let userData;
+
+    try {
+      userData = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+    } catch (e) {
+      return null;
+    }
+
+    return userData;
+  }
+
+  async saveToken(userID: string, refreshToken: string) {
     const tokenData = await TokenModel.findOne({ user: userID });
 
     if (tokenData) {
@@ -25,9 +50,31 @@ class TokenService {
       return tokenData.save();
     }
 
-    const token = TokenModel.create({ user: userID, refreshToken });
+    return TokenModel.create({ user: userID, refreshToken });
+  }
 
-    return token;
+  async findToken(refreshToken: string) {
+    let tokenData;
+
+    try {
+      tokenData = await TokenModel.findOne({ refreshToken });
+    } catch (e) {
+      throw new HttpError("Can't find refresh token in DB! Please, try again.", 500);
+    }
+
+    return tokenData;
+  }
+
+  async removeToken(refreshToken: string) {
+    let tokenData;
+
+    try {
+      tokenData = await TokenModel.deleteOne({ refreshToken });
+    } catch (e) {
+      throw new HttpError("Can't delete refresh token from DB! Please, try again.", 500);
+    }
+
+    return tokenData;
   }
 }
 
