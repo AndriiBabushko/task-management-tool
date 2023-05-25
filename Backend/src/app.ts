@@ -12,6 +12,7 @@ import { router as groupsRouter } from './routes/groups-routes.js';
 import { router as categoriesRouter } from './routes/categories-routes.js';
 import { router as rolesRouter } from './routes/roles-routes.js';
 import { ErrorMiddleware } from './middlewares/error-middleware.js';
+import bodyParser from 'body-parser';
 
 dotenvConfig();
 const mongoURL: string | undefined = process.env.DB_HOST;
@@ -19,7 +20,7 @@ const port: string | undefined = process.env.PORT;
 
 const app: Express = express();
 
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
 
@@ -43,13 +44,18 @@ app.use('/api/groups', groupsRouter);
 
 app.use('/api/roles', rolesRouter);
 
+app.use(ErrorMiddleware);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   return next(new HttpError("Couldn't find this route.", 404));
 });
 
-app.use(ErrorMiddleware);
+mongooseConnect(mongoURL)
+  .then(() => {
+    console.log('DB is connected!');
+  })
+  .catch((error) => console.log(error));
 
-mongooseConnect(mongoURL).catch((error) => console.log(error));
 app.listen(port, () => {
   console.log('Server is running on port: ' + port);
 });
