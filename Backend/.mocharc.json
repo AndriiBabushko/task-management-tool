@@ -11,8 +11,7 @@
   "timeout": 20000,
   "ui": "bdd",
   "watch-files": [
-    "lib/**/*.js",
-    "test/**/*.js"
+    "src/test/**/*.js"
   ],
   "watch-ignore": [
     "lib/vendor"
