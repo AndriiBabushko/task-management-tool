@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 
 import HttpError from '../exceptions/http-error.js';
-import { mongooseModel as UserModel } from '../models/user-model.js';
 import { IUser } from '../ts/interfaces/IUser.js';
 import UserService from '../services/user-service.js';
 
@@ -32,7 +29,6 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
     res.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: true,
     });
 
     return res.status(200).json({ ...userData, message: 'Successfully signed up!' });
@@ -50,51 +46,29 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const { email, password }: IUser = req.body;
-    let indentifiedUser;
+    const userData = await UserService.login(email, password);
 
-    try {
-      indentifiedUser = await UserModel.findOne({ email: email });
-    } catch (e) {
-      return next(new HttpError('Something went wrong while logging up! Please, try again.', 500));
-    }
-
-    if (!indentifiedUser) {
-      return next(new HttpError("Can't find such user! Please, check your credentials.", 401));
-    }
-
-    let isValidPassword = false;
-    try {
-      isValidPassword = await bcrypt.compare(password, indentifiedUser.password);
-    } catch (e) {
-      return next(new HttpError("Couldn't log you in! Please, check your credentials and try again.", 500));
-    }
-
-    if (!isValidPassword) {
-      return next(new HttpError('Password is incorrect! Please, try again.', 401));
-    }
-
-    let token;
-    try {
-      token = jwt.sign({ userId: indentifiedUser.id, email: indentifiedUser.email }, 'task_management_tool_token', {
-        expiresIn: '1h',
-      });
-    } catch (e) {
-      return next(new HttpError('Logging in failed! Please try again.', 500));
-    }
-
-    return res.json({
-      userId: indentifiedUser.id,
-      email: indentifiedUser.email,
-      token,
-      message: 'Successfully logged in!',
-      success: true,
+    res.cookie('refreshToken', userData.refreshToken, {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
     });
+
+    return res.status(200).json({ ...userData, message: 'Successfully logged in!' });
   } catch (e) {
     next(e);
   }
 };
 
-const logout = async (req: Request, res: Response, next: NextFunction) => {};
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = req.cookies;
+    const token = await UserService.logout(refreshToken);
+    res.clearCookie('refreshToken');
+    return res.status(200).json({ ...token, message: 'Successfully logged out!' });
+  } catch (e) {
+    return next(e);
+  }
+};
 
 const activateLink = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -108,6 +82,20 @@ const activateLink = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const refreshLink = async (req: Request, res: Response, next: NextFunction) => {};
+const refreshLink = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = req.cookies;
+
+    const userData = await UserService.refresh(refreshToken);
+    res.cookie('refreshToken', userData.refreshToken, {
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+
+    return res.status(200).json(userData);
+  } catch (e) {
+    next(e);
+  }
+};
 
 export { getUsers, login, signup, activateLink, refreshLink, logout };
