@@ -1,15 +1,15 @@
 export default class UserDto {
-  id;
-  name;
-  surname;
-  username;
-  email;
-  password;
-  image;
-  tasks;
-  roles;
-  groups;
-  isActivated;
+  id: string;
+  name: string;
+  surname: string;
+  username: string;
+  email: string;
+  password: string;
+  image: string;
+  tasks: [];
+  roles: [];
+  groups: [];
+  isActivated: boolean;
 
   constructor(model) {
     this.id = model._id;

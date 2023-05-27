@@ -1,13 +1,14 @@
 export default class TaskDto {
-  id;
-  title;
-  description;
-  creationDate;
-  deadlineDate;
-  creator;
-  tags;
-  category;
-  access;
+  id: string;
+  title: string;
+  description: string;
+  creationDate: Date;
+  deadlineDate: Date;
+  creator: string;
+  tags: string[];
+  categories: string[];
+  access: string;
+  isCompleted: boolean;
 
   constructor(model) {
     this.id = model.id;
@@ -17,7 +18,8 @@ export default class TaskDto {
     this.deadlineDate = model.deadlineDate;
     this.creator = model.creator;
     this.tags = model.tags;
-    this.category = model.category;
+    this.categories = model.categories;
     this.access = model.access;
+    this.isCompleted = model.isCompleted;
   }
 }
