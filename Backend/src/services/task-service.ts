@@ -1,5 +1,3 @@
-import { ObjectId } from 'mongodb';
-
 import { mongooseModel as UserModel } from '../models/user-model.js';
 import { mongooseModel as TaskModel } from '../models/task-model.js';
 import { mongooseModel as CategoryModel } from '../models/category-model.js';
@@ -9,7 +7,6 @@ import TaskDto from '../DTO/task-dto.js';
 import { ITask } from '../ts/interfaces/ITask.js';
 import { ClientSession, Document, startSession, Types } from 'mongoose';
 import { IUser } from '../ts/interfaces/IUser.js';
-import { ICategory } from '../ts/interfaces/ICategory.js';
 
 class TaskService {
   async getTasks() {
@@ -63,22 +60,14 @@ class TaskService {
     };
   }
 
-  private async checkTaskData(
-    title: string,
-    description: string,
-    deadlineDate: Date,
-    tags: ObjectId[],
-    category: ObjectId,
-    creatorID: string = null,
-  ) {
+  private async checkTaskData({ deadlineDate, tags, categories }, creatorID = null) {
     if (new Date(deadlineDate).getTime() <= new Date().getTime())
       throw new HttpError('Task deadline date is invalid!', 422);
 
     let identifiedCreator: Document<unknown, NonNullable<unknown>, IUser> &
         Omit<IUser & { _id: Types.ObjectId }, never>,
       identifiedTags: Awaited<void>[],
-      identifiedCategory: Document<unknown, NonNullable<unknown>, ICategory> &
-        Omit<ICategory & { _id: Types.ObjectId }, never>;
+      identifiedCategories;
 
     if (creatorID != null) {
       try {
@@ -87,23 +76,33 @@ class TaskService {
         throw new HttpError("Couldn't find task creator for provided id!", 500);
       }
 
-      if (!identifiedCreator) throw new HttpError("Couldn't find creator for provided id.", 404);
+      if (!identifiedCreator) throw new HttpError("Couldn't find task creator for provided id.", 404);
     }
 
-    if (category) {
+    if (categories) {
       try {
-        identifiedCategory = await CategoryModel.findById(category);
-      } catch (e) {
-        throw new HttpError("Couldn't find category for provided id!", 500);
-      }
+        identifiedCategories = await Promise.all(
+          categories.map(async (c) => {
+            let identifiedCategory;
 
-      if (!identifiedCategory) throw new HttpError("Couldn't find category for provided id.", 404);
+            try {
+              identifiedCategory = await CategoryModel.findById(c);
+            } catch (e) {
+              throw new HttpError("Couldn't find category for provided id!", 500);
+            }
+
+            if (!identifiedCategory) throw new HttpError("Couldn't find category for provided id.", 404);
+          }),
+        );
+      } catch (e) {
+        throw new HttpError(e.message, e.status);
+      }
     }
 
     if (tags) {
       try {
         identifiedTags = await Promise.all(
-          tags.map(async (t: ObjectId) => {
+          tags.map(async (t) => {
             let identifiedTag;
 
             try {
@@ -113,7 +112,7 @@ class TaskService {
             }
 
             if (!identifiedTag) {
-              throw new HttpError("Couldn't find tag for provided id!", 500);
+              throw new HttpError("Couldn't find tag for provided id!", 404);
             }
           }),
         );
@@ -125,15 +124,15 @@ class TaskService {
     return {
       identifiedCreator,
       identifiedTags,
-      identifiedCategory,
+      identifiedCategories,
     };
   }
 
-  async createTask(creatorID: string, { title, description, deadlineDate, tags, category, access }: ITask) {
+  async createTask(creatorID: string, { title, description, deadlineDate, tags, categories, access }: ITask) {
     let createdTask, taskCheck;
 
     try {
-      taskCheck = await this.checkTaskData(title, description, deadlineDate, tags, category, creatorID);
+      taskCheck = await this.checkTaskData({ deadlineDate, tags, categories }, creatorID);
     } catch (e) {
       throw new HttpError(e.message, e.status);
     }
@@ -147,6 +146,7 @@ class TaskService {
           deadlineDate,
           creator: creatorID,
           tags,
+          categories,
           access,
         });
       } catch (e) {
@@ -172,27 +172,20 @@ class TaskService {
       };
     }
 
-    throw new HttpError(
-      'Task data validation in DB failed while creating new task! Please, check credentials and try again.',
-      500,
-    );
+    throw new HttpError(taskCheck.message, taskCheck.status);
   }
 
   async updateTask(
     taskID: string,
     userID: string,
-    { title, description, deadlineDate, tags, category, access }: ITask,
+    { title, description, deadlineDate, tags, categories, access, isCompleted }: ITask,
   ) {
     let taskCheck;
 
     try {
-      taskCheck = await this.checkTaskData(title, description, deadlineDate, tags, category);
+      taskCheck = await this.checkTaskData({ deadlineDate, tags, categories });
     } catch (e) {
-      console.log(e);
-      throw new HttpError(
-        'Something went wrong while checking task data. Please, check credentials and try again.',
-        500,
-      );
+      throw new HttpError(e.message, e.status);
     }
 
     if (!(taskCheck instanceof HttpError)) {
@@ -216,8 +209,9 @@ class TaskService {
       if (description) updatedTask.description = description;
       if (deadlineDate) updatedTask.deadlineDate = deadlineDate;
       if (tags) updatedTask.tags = tags;
-      if (category) updatedTask.category = category;
+      if (categories) updatedTask.categories = categories;
       if (access) updatedTask.access = access;
+      if (isCompleted) updatedTask.isCompleted = isCompleted;
 
       try {
         await updatedTask.save();
@@ -233,37 +227,34 @@ class TaskService {
       };
     }
 
-    throw new HttpError(
-      'Task data validation in DB failed while updating new task! Please, check credentials and try again.',
-      500,
-    );
+    throw new HttpError(taskCheck.message, taskCheck.status);
   }
 
   async deleteTask(taskID: string, userID: string) {
-    let task;
+    let deletedTask;
 
     try {
-      task = await TaskModel.findById(taskID).populate({
+      deletedTask = await TaskModel.findById(taskID).populate({
         path: 'creator',
       });
     } catch (e) {
       throw new HttpError('Something went wrong while searching for some task by task ID.', 500);
     }
 
-    if (!task) {
+    if (!deletedTask) {
       throw new HttpError("Couldn't find a task for the provided task ID!", 404);
     }
 
-    if (task.creator._id != userID) {
+    if (deletedTask.creator._id != userID) {
       throw new HttpError("No access to delete task. Different user and creator id's.", 404);
     }
 
     try {
       const session: ClientSession = await startSession();
       session.startTransaction();
-      await task.deleteOne({ session });
-      task.creator.tasks.pull(task);
-      await task.creator.save({ session });
+      await deletedTask.deleteOne({ session });
+      deletedTask.creator.tasks.pull(deletedTask);
+      await deletedTask.creator.save({ session });
       await session.commitTransaction();
     } catch (e) {
       throw new HttpError('Something went wrong while deleting task.', 500);

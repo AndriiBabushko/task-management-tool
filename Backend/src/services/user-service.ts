@@ -2,10 +2,15 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
 import { mongooseModel as UserModel } from '../models/user-model.js';
+import { mongooseModel as RoleModel } from '../models/role-model.js';
+import { mongooseModel as GroupModel } from '../models/group-model.js';
+import { mongooseModel as TaskModel } from '../models/task-model.js';
 import MailService from './mail-service.js';
 import TokenService from './token-service.js';
 import UserDto from '../DTO/user-dto.js';
 import HttpError from '../exceptions/http-error.js';
+import { IUser } from '../ts/interfaces/IUser.js';
+import { ClientSession, startSession } from 'mongoose';
 
 class UserService {
   async signup(username: string, email: string, password: string) {
@@ -171,7 +176,139 @@ class UserService {
     }
 
     return {
-      users: users.map((u) => u.toObject({ getters: true })),
+      users: users.map((u) => new UserDto(u)),
+      success: true,
+    };
+  }
+
+  private async checkUserData({ roles, groups }) {
+    let identifiedRoles, identifiedGroups;
+
+    if (roles) {
+      try {
+        identifiedRoles = await Promise.all(
+          roles.map(async (r) => {
+            let identifiedRole;
+
+            try {
+              identifiedRole = await RoleModel.findById(r);
+            } catch (e) {
+              throw new HttpError("Couldn't find role for provided id!", 500);
+            }
+
+            if (!identifiedRole) throw new HttpError("Couldn't find role for provided id.", 404);
+          }),
+        );
+      } catch (e) {
+        throw new HttpError(e.message, e.status);
+      }
+    }
+
+    if (groups) {
+      try {
+        identifiedGroups = await Promise.all(
+          groups.map(async (g) => {
+            let identifiedGroup;
+
+            try {
+              identifiedGroup = await GroupModel.findById(g);
+            } catch (e) {
+              throw new HttpError("Couldn't find group for provided id!", 500);
+            }
+
+            if (!identifiedGroup) throw new HttpError("Couldn't find group for provided id.", 404);
+          }),
+        );
+      } catch (e) {
+        throw new HttpError(e.message, e.status);
+      }
+    }
+
+    return {
+      identifiedRoles,
+      identifiedGroups,
+    };
+  }
+
+  async updateUser(userID: string, { name, surname, username, password, image, roles, groups }: IUser) {
+    let userCheck;
+
+    try {
+      userCheck = await this.checkUserData({ roles, groups });
+    } catch (e) {
+      throw new HttpError(e.message, e.status);
+    }
+
+    if (!(userCheck instanceof HttpError)) {
+      let updatedUser;
+
+      try {
+        updatedUser = await UserModel.findById(userID).populate('tasks').populate('roles').populate('groups');
+      } catch (e) {
+        throw new HttpError('Something went wrong while searching for some user by user ID.', 500);
+      }
+
+      if (!updatedUser) {
+        throw new HttpError("Couldn't find a user for the provided user ID!", 404);
+      }
+
+      if (name) updatedUser.name = name;
+      if (surname) updatedUser.surname = surname;
+      if (username) updatedUser.username = username;
+      if (password) updatedUser.password = password;
+      if (image) updatedUser.image = image;
+      if (roles) updatedUser.roles = roles;
+      if (groups) updatedUser.groups = groups;
+
+      try {
+        await updatedUser.save();
+      } catch (e) {
+        throw new HttpError('Something went wrong while updating user.', 500);
+      }
+
+      const userDTO: UserDto = new UserDto(updatedUser);
+
+      return {
+        user: userDTO,
+        success: true,
+      };
+    }
+
+    throw new HttpError(
+      'User data validation in DB failed while updating new user! Please, check credentials and try again.',
+      500,
+    );
+  }
+
+  async deleteUser(userID: string) {
+    let deletedUser, deletedUserTasks;
+
+    try {
+      deletedUser = await UserModel.findById(userID).populate('groups');
+      deletedUserTasks = await TaskModel.find({ creator: userID });
+    } catch (e) {
+      throw new HttpError('Something went wrong while searching for some user by user ID.', 500);
+    }
+
+    if (!deletedUser) {
+      throw new HttpError("Couldn't find a user for the provided user ID!", 404);
+    }
+
+    try {
+      const session: ClientSession = await startSession();
+      session.startTransaction();
+
+      await deletedUserTasks.deleteMany({ session });
+      await GroupModel.updateMany({ users: { $in: [userID] } }, { $pull: { users: userID } }, { session });
+      await GroupModel.updateMany({ creator: userID }, { creator: null }, { session });
+
+      await deletedUser.deleteOne({ session });
+      await session.commitTransaction();
+    } catch (e) {
+      throw new HttpError('Something went wrong while deleting task.', 500);
+    }
+
+    return {
       success: true,
     };
   }
