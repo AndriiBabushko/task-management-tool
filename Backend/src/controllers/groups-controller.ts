@@ -1,79 +1,83 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
+import { validationResult } from 'express-validator';
+import { Types } from 'mongoose';
 
-import { mongooseModel as GroupModel } from "../models/group-model.js";
-import HttpError from "../exceptions/http-error.js";
-import {IGroup} from "../ts/interfaces/IGroup.js";
+import GroupService from '../services/group-service.js';
+import HttpError from '../exceptions/http-error.js';
+import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
+import TaskService from '../services/task-service.js';
 
 const getGroups = async (req: Request, res: Response, next: NextFunction) => {
-  let groups;
-
   try {
-    groups = await GroupModel.find();
-  } catch (e) {
-    return next(
-      new HttpError(
-        "Something went wrong while fetching groups data from DB.",
-        500
-      )
-    );
-  }
+    const groupsData = await GroupService.getGroups();
 
-  return res.status(201).json({
-    groups: groups.map((g) => g.toObject({ getters: true })),
-    success: true,
-  });
+    return res.status(200).json(groupsData);
+  } catch (e) {
+    next(e);
+  }
 };
 
-const getGroupById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const groupID: string = req.params.groupID;
-
-  let group;
-
+const getGroupById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    group = await GroupModel.findById(groupID).populate("creator");
+    const groupID: string = req.params.groupID;
+
+    const groupData = await GroupService.getGroupByID(groupID);
+
+    return res.status(200).json(groupData);
   } catch (e) {
-    return next(
-      new HttpError(
-        "Something went wrong while searching for some group by group ID.",
-        500
-      )
-    );
+    next(e);
   }
+};
 
-  if (!group) {
-    return next(
-      new HttpError("Couldn't find a category for the provided group ID!", 404)
-    );
+const createGroup = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      next(HttpError.BadRequest('Create group validation error. Please, check your credentials.', errors.array()));
+    }
+
+    const { id: creatorID } = req.user;
+    const groupData = await GroupService.createGroup(creatorID, req.body);
+
+    return res.status(200).json({ ...groupData, message: 'Group is successfully created!' });
+  } catch (e) {
+    next(e);
   }
-
-  return res
-    .status(201)
-    .json({ group: group.toObject({ getters: true }), success: true });
 };
 
-const createGroup = (req: Request, res: Response, next: NextFunction) => {
-  let {name, description = "", image = "", access = ""}: IGroup = req.body;
+const updateGroupById = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+  try {
+    const errors = validationResult(req);
 
-  // if(validator.isEmpty(name) || name.length < 3)
-  //   return next(new HttpError("Group is entered incorrect!", 422));
+    if (!errors.isEmpty()) {
+      next(HttpError.BadRequest('Update group validation error. Please, check your credentials.', errors.array()));
+    }
 
-  const createdGroup = new GroupModel({
-    name, description
-  })
+    const groupID: string = req.params.groupID;
+    const { id: userID } = req.user;
+    const userData = await GroupService.updateGroup(groupID, userID, req.body);
+
+    return res.status(200).json({ ...userData, message: 'Group is successfully updated!' });
+  } catch (e) {
+    next(e);
+  }
 };
 
-const updateGroupById = (req: Request, res: Response, next: NextFunction) => {};
+const deleteGroupById = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+  try {
+    const groupID: string = req.params.groupID;
+    const { id: userID } = req.user;
 
-const deleteGroupById = (req: Request, res: Response, next: NextFunction) => {};
+    const taskData = await GroupService.deleteGroup(groupID, userID);
 
-export {
-  getGroups,
-  getGroupById,
-  createGroup,
-  updateGroupById,
-  deleteGroupById,
+    return res.status(200).json({
+      ...taskData,
+      message: `Successful deleted group with ${groupID} ID.`,
+    });
+  } catch (e) {
+    next(e);
+  }
 };
+
+export { getGroups, getGroupById, createGroup, updateGroupById, deleteGroupById };
