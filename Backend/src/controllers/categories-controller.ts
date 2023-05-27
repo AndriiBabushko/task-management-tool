@@ -1,146 +1,78 @@
 import { NextFunction, Request, Response } from 'express';
-import { ClientSession, startSession } from 'mongoose';
+import { validationResult } from 'express-validator';
 
-import { ICategory } from '../ts/interfaces/ICategory.js';
 import HttpError from '../exceptions/http-error.js';
-import { mongooseModel as CategoryModel } from '../models/category-model.js';
+import CategoryService from '../services/category-service.js';
 
 const getCategories = async (req: Request, res: Response, next: NextFunction) => {
-  let categories;
-
   try {
-    categories = await CategoryModel.find();
-  } catch (e) {
-    return next(new HttpError('Something went wrong while fetching categories data from DB.', 500));
-  }
+    const categoriesData = await CategoryService.getCategories();
 
-  return res.status(201).json({
-    categories: categories.map((c) => c.toObject({ getters: true })),
-    success: true,
-  });
+    return res.status(200).json(categoriesData);
+  } catch (e) {
+    next(e);
+  }
 };
 
 const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
-  const categoryID: string = req.params.categoryID;
-  let category;
-
   try {
-    category = await CategoryModel.findById(categoryID);
+    const categoryID: string = req.params.categoryID;
+
+    const categoryData = await CategoryService.getCategoryByID(categoryID);
+
+    return res.status(200).json(categoryData);
   } catch (e) {
-    return next(new HttpError('Something went wrong while searching for some category by category ID.', 500));
+    next(e);
   }
-
-  if (!category) {
-    return next(new HttpError("Couldn't find a category for the provided category ID!", 404));
-  }
-
-  return res.status(201).json({ category: category.toObject({ getters: true }), success: true });
 };
 
 const createCategory = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, description = undefined }: ICategory = req.body;
-  let existedCategory;
-
-  // if (validator.isEmpty(name) || validator.isLength(name, {min: 3}))
-  //   return next(new HttpError("Category name is empty!", 422));
-
   try {
-    existedCategory = await CategoryModel.findOne({ name: name });
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      next(HttpError.BadRequest('Create category validation error. Please, check your credentials.', errors.array()));
+    }
+
+    const categoryData = await CategoryService.createCategory(req.body);
+
+    return res.status(200).json({ ...categoryData, message: 'Category is successfully created!' });
   } catch (e) {
-    return next(new HttpError('Something went wrong while creating category.', 500));
+    next(e);
   }
-
-  if (existedCategory) {
-    return next(new HttpError('Category name already exists! Pls, use another one.', 422));
-  }
-
-  const createdCategory = new CategoryModel({
-    name,
-    description,
-  });
-
-  try {
-    const session: ClientSession = await startSession();
-    session.startTransaction();
-    await createdCategory.save({ session });
-    await session.commitTransaction();
-  } catch (e) {
-    return next(new HttpError('Creating category failed.', 500));
-  }
-
-  return res.status(201).json({
-    category: createdCategory.toObject({ getters: true }),
-    success: true,
-  });
 };
 
 const updateCategoryById = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, description = undefined }: ICategory = req.body;
-  const categoryID: string = req.params.categoryID;
-  let category, existedCategory;
-
-  // if (validator.isEmpty(name) || validator.isLength(name, {min: 3}))
-  //   return next(new HttpError("Category name is empty!", 422));
-
   try {
-    existedCategory = await CategoryModel.findOne({ name: name });
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      next(HttpError.BadRequest('Update category validation error. Please, check your credentials.', errors.array()));
+    }
+
+    const categoryID: string = req.params.categoryID;
+
+    const tagData = await CategoryService.updateCategory(categoryID, req.body);
+
+    return res.status(200).json({ ...tagData, message: 'Category is successfully updated!' });
   } catch (e) {
-    return next(new HttpError('Something went wrong while updating category.', 500));
+    next(e);
   }
-
-  if (existedCategory) {
-    return next(new HttpError('Category name already exists! Pls, use another one.', 422));
-  }
-
-  try {
-    category = await CategoryModel.findById(categoryID);
-  } catch (e) {
-    return next(new HttpError('Something went wrong while searching for some category by category ID.', 500));
-  }
-
-  if (!category) {
-    return next(new HttpError("Couldn't find a category for the provided category ID!", 404));
-  }
-
-  category.name = name;
-  // if (!validator.isEmpty(description)) category.description = description;
-
-  try {
-    await category.save();
-  } catch (e) {
-    return next(new HttpError('Something went wrong while updating category.', 500));
-  }
-
-  return res.status(201).json({ category: category.toObject({ getters: true }), success: true });
 };
 
 const deleteCategoryById = async (req: Request, res: Response, next: NextFunction) => {
-  const categoryID: string = req.params.categoryID;
-  let category;
-
   try {
-    category = await CategoryModel.findById(categoryID);
+    const categoryID: string = req.params.categoryID;
+
+    const categoryData = await CategoryService.deleteCategory(categoryID);
+
+    return res.status(201).json({
+      ...categoryData,
+      message: `Successful deleted category with ${categoryID} ID.`,
+    });
   } catch (e) {
-    return next(new HttpError('Something went wrong while searching for some category by category ID.', 500));
+    next(e);
   }
-
-  if (!category) {
-    return next(new HttpError("Couldn't find a category for the provided category ID!", 404));
-  }
-
-  try {
-    const session: ClientSession = await startSession();
-    session.startTransaction();
-    await category.deleteOne({ session });
-    await session.commitTransaction();
-  } catch (e) {
-    return next(new HttpError('Something went wrong while deleting category.', 500));
-  }
-
-  return res.status(201).json({
-    message: `Successful deleted category with ${categoryID} ID`,
-    success: true,
-  });
 };
 
 export { getCategories, getCategoryById, createCategory, updateCategoryById, deleteCategoryById };
