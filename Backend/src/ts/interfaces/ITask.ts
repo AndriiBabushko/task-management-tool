@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { Document, Types } from 'mongoose';
 
 export interface ITask extends Document {
   id: string;
@@ -6,8 +6,9 @@ export interface ITask extends Document {
   description?: string;
   creationDate: Date;
   deadlineDate?: Date;
-  creator: ObjectId;
-  tags?: ObjectId[];
-  category?: ObjectId;
+  creator: { type: Types.ObjectId };
+  tags?: Types.ObjectId[];
+  categories?: Types.ObjectId[];
   access: string;
+  isCompleted: boolean;
 }
