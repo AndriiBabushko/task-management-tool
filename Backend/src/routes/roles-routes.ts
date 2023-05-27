@@ -1,20 +1,20 @@
 import { Router } from 'express';
 
 import * as rolesController from '../controllers/roles-controller.js';
-import { AuthMiddleware as checkAuth } from '../middlewares/auth-middleware.js';
+import { AuthMiddleware } from '../middlewares/auth-middleware.js';
+import { body, ValidationChain } from 'express-validator';
 
 const router: Router = Router();
+const roleHandlers: ValidationChain[] = [body('name').optional().isLength({ min: 3, max: 18 })];
 
-router.get('/', rolesController.getRoles);
+router.get('/', AuthMiddleware, rolesController.getRoles);
 
 router.get('/:roleID', rolesController.getRoleById);
 
-router.use(checkAuth);
+router.post('/', roleHandlers, AuthMiddleware, rolesController.createRole);
 
-router.post('/', rolesController.createRole);
+router.patch('/:roleID', roleHandlers, AuthMiddleware, rolesController.updateRoleById);
 
-router.patch('/:roleID', rolesController.updateRoleById);
-
-router.delete('/:roleID', rolesController.deleteRoleById);
+router.delete('/:roleID', AuthMiddleware, rolesController.deleteRoleById);
 
 export { router };

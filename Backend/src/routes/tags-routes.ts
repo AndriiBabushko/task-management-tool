@@ -1,20 +1,20 @@
 import { Router } from 'express';
 
 import * as tagsController from '../controllers/tags-controller.js';
-import { AuthMiddleware as checkAuth } from '../middlewares/auth-middleware.js';
+import { AuthMiddleware } from '../middlewares/auth-middleware.js';
+import { body, ValidationChain } from 'express-validator';
 
 const router: Router = Router();
+const tagHandlers: ValidationChain[] = [body('name').optional().isLength({ min: 3, max: 18 })];
 
-router.get('/', tagsController.getTags);
+router.get('/', AuthMiddleware, tagsController.getTags);
 
 router.get('/:tagID', tagsController.getTagById);
 
-router.use(checkAuth);
+router.post('/', tagHandlers, AuthMiddleware, tagsController.createTag);
 
-router.post('/', tagsController.createTag);
+router.patch('/:tagID', tagHandlers, AuthMiddleware, tagsController.updateTagById);
 
-router.patch('/:tagID', tagsController.updateTagById);
-
-router.delete('/:tagID', tagsController.deleteTagById);
+router.delete('/:tagID', AuthMiddleware, tagsController.deleteTagById);
 
 export { router };

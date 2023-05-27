@@ -6,10 +6,11 @@ import { body, ValidationChain } from 'express-validator';
 
 const router: Router = Router();
 const taskHandlers: ValidationChain[] = [
-  body('title').isLength({ min: 3, max: 30 }),
+  body('title').optional().isLength({ min: 3, max: 30 }),
   body('deadlineDate').optional().isDate(),
-  body('tags').optional().isArray(),
-  body('access').optional().isBoolean(),
+  body('tags.*').optional().isMongoId(),
+  body('categories.*').optional().isMongoId(),
+  body('access').optional().isString(),
 ];
 
 router.get('/:taskID', tasksControllers.getTaskById);
