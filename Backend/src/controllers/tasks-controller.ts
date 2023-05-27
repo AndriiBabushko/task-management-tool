@@ -23,7 +23,7 @@ const getTasksByCreatorId = async (req: Request, res: Response, next: NextFuncti
 
     const tasksData = await TaskService.getTaskByCreatorID(creatorID);
 
-    return res.status(201).json(tasksData);
+    return res.status(200).json(tasksData);
   } catch (e) {
     next(e);
   }
@@ -61,7 +61,7 @@ const updateTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      next(HttpError.BadRequest('Create task validation error. Please, check your credentials.', errors.array()));
+      next(HttpError.BadRequest('Update task validation error. Please, check your credentials.', errors.array()));
     }
 
     const taskID: string = req.params.taskID;
@@ -82,7 +82,7 @@ const deleteTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
 
     const taskData = await TaskService.deleteTask(taskID, userID);
 
-    return res.status(201).json({
+    return res.status(200).json({
       ...taskData,
       message: `Successful deleted task with ${taskID} ID.`,
     });
