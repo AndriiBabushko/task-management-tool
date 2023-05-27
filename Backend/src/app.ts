@@ -22,7 +22,7 @@ const app: Express = express();
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,9 +32,9 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
   next();
 });
 
-app.use('/api/tasks', tasksRouter);
-
 app.use('/api/users', usersRouter);
+
+app.use('/api/tasks', tasksRouter);
 
 app.use('/api/tags', tagsRouter);
 
@@ -44,11 +44,11 @@ app.use('/api/groups', groupsRouter);
 
 app.use('/api/roles', rolesRouter);
 
-app.use(ErrorMiddleware);
-
 app.use((req: Request, res: Response, next: NextFunction) => {
   return next(new HttpError("Couldn't find this route.", 404));
 });
+
+app.use(ErrorMiddleware);
 
 mongooseConnect(mongoURL)
   .then(() => {
