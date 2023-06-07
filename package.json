@@ -1,0 +1,28 @@
+{
+  "name": "task-management-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "client": "npm start --prefix client",
+    "server": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndriiBabushko/task-management-tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndriiBabushko/task-management-tool/issues"
+  },
+  "homepage": "https://github.com/AndriiBabushko/task-management-tool#readme",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
