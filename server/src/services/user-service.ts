@@ -13,7 +13,7 @@ import { IUser } from '../ts/interfaces/IUser.js';
 import { ClientSession, startSession } from 'mongoose';
 
 class UserService {
-  async signup(username: string, email: string, password: string) {
+  async signup({ name, surname, username, email, password, image }: IUser) {
     let indentifiedUser;
 
     try {
@@ -48,9 +48,12 @@ class UserService {
 
     try {
       user = await UserModel.create({
+        name,
+        surname,
         username,
         email,
         password: hashPassword,
+        image,
         activationLink,
       });
     } catch (e) {

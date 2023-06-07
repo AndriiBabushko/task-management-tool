@@ -47,7 +47,7 @@ const createTask = async (req: IUserDataRequest, res: Response, next: NextFuncti
       next(HttpError.BadRequest('Create task validation error. Please, check your credentials.', errors.array()));
     }
 
-    const { id: creatorID } = req.user;
+    const { id: creatorID } = req.userData;
     const taskData = await TaskService.createTask(creatorID, req.body);
 
     return res.status(200).json({ ...taskData, message: 'Task is successfully created!' });
@@ -65,7 +65,7 @@ const updateTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
     }
 
     const taskID: string = req.params.taskID;
-    const { id: userID } = req.user;
+    const { id: userID } = req.userData;
 
     const taskData = await TaskService.updateTask(taskID, userID, req.body);
 
@@ -78,7 +78,7 @@ const updateTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
 const deleteTaskByID = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
     const taskID: string = req.params.taskID;
-    const { id: userID } = req.user;
+    const { id: userID } = req.userData;
 
     const taskData = await TaskService.deleteTask(taskID, userID);
 

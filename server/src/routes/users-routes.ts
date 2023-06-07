@@ -9,6 +9,11 @@ const router: Router = Router();
 router.post(
   '/signup',
   [
+    body('name').optional().isLength({ min: 2, max: 24 }),
+    body('surname').optional().isLength({
+      min: 2,
+      max: 24,
+    }),
     body('email').normalizeEmail().isEmail(),
     body('password').isLength({ min: 3, max: 32 }),
     body('username').isLength({ min: 3, max: 18 }),
@@ -34,7 +39,7 @@ router.patch(
     }),
     body('username')
       .optional()
-      .isLength({ min: 3, max: 15 })
+      .isLength({ min: 3, max: 18 })
       .custom((value) => {
         if (!/^[a-zA-Z0-9_]+$/.test(value))
           throw new Error('Username can only contain letters, numbers and underscores.');

@@ -15,7 +15,7 @@ export const AuthMiddleware = (req: IUserDataRequest, res: Response, next: NextF
     const userData = TokenService.validateAccessToken(accessToken);
     if (!userData) return next(HttpError.UnauthorizedError());
 
-    req.user = userData;
+    req.userData = userData;
     next();
   } catch (e) {
     return next(e);

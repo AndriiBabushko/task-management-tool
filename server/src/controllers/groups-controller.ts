@@ -1,11 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { Types } from 'mongoose';
 
 import GroupService from '../services/group-service.js';
 import HttpError from '../exceptions/http-error.js';
 import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
-import TaskService from '../services/task-service.js';
 
 const getGroups = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -37,7 +35,7 @@ const createGroup = async (req: IUserDataRequest, res: Response, next: NextFunct
       next(HttpError.BadRequest('Create group validation error. Please, check your credentials.', errors.array()));
     }
 
-    const { id: creatorID } = req.user;
+    const { id: creatorID } = req.userData;
     const groupData = await GroupService.createGroup(creatorID, req.body);
 
     return res.status(200).json({ ...groupData, message: 'Group is successfully created!' });
@@ -55,7 +53,7 @@ const updateGroupById = async (req: IUserDataRequest, res: Response, next: NextF
     }
 
     const groupID: string = req.params.groupID;
-    const { id: userID } = req.user;
+    const { id: userID } = req.userData;
     const userData = await GroupService.updateGroup(groupID, userID, req.body);
 
     return res.status(200).json({ ...userData, message: 'Group is successfully updated!' });
@@ -67,7 +65,7 @@ const updateGroupById = async (req: IUserDataRequest, res: Response, next: NextF
 const deleteGroupById = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
     const groupID: string = req.params.groupID;
-    const { id: userID } = req.user;
+    const { id: userID } = req.userData;
 
     const taskData = await GroupService.deleteGroup(groupID, userID);
 

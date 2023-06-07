@@ -6,7 +6,10 @@ const ErrorMiddleware = (err: Error, req: Request, res: Response, next: NextFunc
   console.log(err);
 
   if (err instanceof HttpError) {
-    return res.status(err.status).json({ message: err.message, errors: err.errors, success: err.success });
+    const httpError = err as HttpError;
+    return res
+      .status(httpError.status)
+      .json({ message: httpError.message, errors: httpError.errors, success: httpError.success });
   }
 
   return res.status(500).json({ message: 'An unknown error occurred!' });

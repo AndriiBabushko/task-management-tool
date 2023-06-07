@@ -16,7 +16,7 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const signup = async (req: Request, res: Response, next: NextFunction) => {
+const signup = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
     const errors = validationResult(req);
 
@@ -24,8 +24,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
       next(HttpError.BadRequest('Signup validation error. Please, check credentials.', errors.array()));
     }
 
-    const { username, email, password }: IUser = req.body;
-    const userData = await UserService.signup(username, email, password);
+    const userData = await UserService.signup(req.body);
 
     res.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -119,7 +118,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const deleteUser = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
-    console.log(req.user);
+    console.log(req.userData);
     // const { refreshToken } = req.cookies;
     // await UserService.logout(refreshToken);
     //
