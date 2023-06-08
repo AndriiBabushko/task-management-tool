@@ -119,10 +119,6 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 const deleteUser = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
     console.log(req.userData);
-    // const { refreshToken } = req.cookies;
-    // await UserService.logout(refreshToken);
-    //
-    // res.clearCookie('refreshToken');
 
     const userID: string = req.params.userID;
 

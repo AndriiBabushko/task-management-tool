@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import AuthService from '../services/AuthService';
 import { IUser } from '../models/IUser';
 import RootStore from './rootStore';
+import UserService from '../services/UserService';
 
 export default class UserStore {
   user = {} as IUser;
@@ -26,14 +27,12 @@ export default class UserStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.login(email, password);
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
       return response;
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      throw error;
     } finally {
       this.rootStore.uiActionsStore.setIsPageLoading(false);
     }
@@ -43,14 +42,12 @@ export default class UserStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.signup(userData);
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
       return response;
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      throw error;
     } finally {
       this.rootStore.uiActionsStore.setIsPageLoading(false);
     }
@@ -60,14 +57,12 @@ export default class UserStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.logout();
-      console.log(response);
       localStorage.removeItem('token');
       this.setAuth(false);
       this.setUser({} as IUser);
       return response;
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      throw error;
     } finally {
       this.rootStore.uiActionsStore.setIsPageLoading(false);
     }
@@ -77,14 +72,27 @@ export default class UserStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.checkAuth();
-      console.log(response);
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
       return response;
-    } catch (e) {
-      console.log(e);
-      throw e;
+    } catch (error) {
+      throw error;
+    } finally {
+      this.rootStore.uiActionsStore.setIsPageLoading(false);
+    }
+  }
+
+  async deleteUser(userID: string) {
+    this.rootStore.uiActionsStore.setIsPageLoading(true);
+    try {
+      const response = await UserService.deleteUser(userID);
+      localStorage.removeItem('token');
+      this.setAuth(false);
+      this.setUser({} as IUser);
+      return response;
+    } catch (error) {
+      throw error;
     } finally {
       this.rootStore.uiActionsStore.setIsPageLoading(false);
     }

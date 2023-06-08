@@ -3,7 +3,6 @@ import { connect as mongooseConnect } from 'mongoose';
 import { config as dotenvConfig } from 'dotenv-flow';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 
 import HttpError from './exceptions/http-error.js';
 import { router as tasksRouter } from './routes/tasks-routes.js';
@@ -32,13 +31,14 @@ const corsMiddleware = cors({
   credentials: true,
 });
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', corsOrigin);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.setHeader('Content-Type', 'application/json');
   next();
 });
 app.use(corsMiddleware);
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/users', usersRouter);

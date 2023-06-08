@@ -24,7 +24,6 @@ export const SignupForm: FC = observer(() => {
     <form
       className={`text-black`}
       onSubmit={handleSubmit(async (data) => {
-        uiActionsStore.setIsPageLoading(true);
         userStore
           .signup({
             name: data.name,
@@ -33,13 +32,24 @@ export const SignupForm: FC = observer(() => {
             email: data.email,
             password: data.password,
           } as IUser)
-          .then((value) => {
-            uiActionsStore.setNotification({ title: 'Signup success!', message: value?.data.message, status: 'success', isOpen: true });
+          .then((response) => {
+            console.log(response);
+            uiActionsStore.setNotification({
+              title: 'Signup success!',
+              message: response?.data.message,
+              status: 'success',
+              isOpen: true,
+            });
           })
-          .catch((reason) => {
-            uiActionsStore.setNotification({ title: 'Signup error!', message: reason.response?.data.message, status: 'error', isOpen: true });
+          .catch((e) => {
+            console.log(e);
+            uiActionsStore.setNotification({
+              title: 'Signup error!',
+              message: e.response?.data.message,
+              status: 'error',
+              isOpen: true,
+            });
           });
-        uiActionsStore.setIsPageLoading(false);
       })}
     >
       <h2 className="text-3xl font-bold mt-8 mb-4 text-center">Signup</h2>

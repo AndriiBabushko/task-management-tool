@@ -24,26 +24,16 @@ export const App: FC = observer(() => {
   const { userStore, uiActionsStore } = rootStore;
 
   useEffect(() => {
-    console.log('useEffect');
-    if (localStorage.getItem('token')) {
-      userStore
-        .checkAuth()
-        .then((value) => {
-          uiActionsStore.setNotification({
-            title: 'Authentication success!',
-            message: value?.data.message,
-            status: 'success',
-            isOpen: true,
-          });
-        })
-        .catch((reason) => {
-          uiActionsStore.setNotification({
-            title: 'Authentication warning!',
-            message: reason?.response.data.message,
-            status: 'warning',
-            isOpen: true,
-          });
+    const token = localStorage.getItem('token');
+    if (token) {
+      userStore.checkAuth().catch((error) => {
+        uiActionsStore.setNotification({
+          title: 'Authentication warning!',
+          message: error?.response.data.message,
+          status: 'warning',
+          isOpen: true,
         });
+      });
     }
   }, []);
 
@@ -56,8 +46,8 @@ export const App: FC = observer(() => {
           <Route
             path={Paths.activation}
             element={
-              userStore.isAuth && !userStore.user.isActivated ? (
-                <AccountActivationPage activationMainLink={userStore.user.email.split('@')[1]} />
+              !userStore.user.isActivated && userStore.user.email ? (
+                <AccountActivationPage activationMail={userStore.user.email} />
               ) : (
                 <Navigate to={Paths.home} />
               )
@@ -70,7 +60,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -84,7 +74,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -98,7 +88,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -112,7 +102,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -126,7 +116,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -140,7 +130,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -154,7 +144,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>
@@ -168,7 +158,7 @@ export const App: FC = observer(() => {
             element={
               !userStore.isAuth ? (
                 <Navigate to={Paths.login} />
-              ) : userStore.user.isActivated ? (
+              ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} />
               ) : (
                 <Layout>

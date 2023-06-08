@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { AuthResponse } from '../models/response/AuthResponse';
 import AuthService from '../services/AuthService';
 
 export const API_URL = 'http://localhost:5000/api';
 
-const axiosInstance = axios.create({ baseURL: API_URL, withCredentials: true });
+const axiosInstance = axios.create({ baseURL: API_URL, withCredentials: true, responseType: 'json' });
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem(`token`);
@@ -19,7 +18,9 @@ axiosInstance.interceptors.response.use(
     return config;
   },
   async (error) => {
+    console.log(error);
     const originalRequest = error.config;
+
     if (error.response.status == 401) {
       try {
         const response = await AuthService.checkAuth();
@@ -29,6 +30,8 @@ axiosInstance.interceptors.response.use(
         throw e;
       }
     }
+
+    throw error;
   },
 );
 

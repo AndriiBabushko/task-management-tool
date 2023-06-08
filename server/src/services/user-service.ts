@@ -57,7 +57,10 @@ class UserService {
         activationLink,
       });
     } catch (e) {
-      throw new HttpError('Signing up failed. Please check credentials and try again.', 500);
+      throw new HttpError(
+        'Signing up failed. Please check credentials and try again. Maybe you are using username or email that is already used.',
+        500,
+      );
     }
 
     const userDTO: UserDto = new UserDto(user);

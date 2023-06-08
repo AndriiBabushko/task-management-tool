@@ -23,6 +23,7 @@ export const LoginForm: FC = observer(() => {
         userStore
           .login({ email: data.email, password: data.password } as IUser)
           .then((value) => {
+            console.log(value);
             uiActionsStore.setNotification({
               title: 'Login success!',
               message: value?.data.message,
@@ -31,6 +32,7 @@ export const LoginForm: FC = observer(() => {
             });
           })
           .catch((reason) => {
+            console.log(reason);
             uiActionsStore.setNotification({
               title: 'Login error!',
               message: reason.response?.data.message,
