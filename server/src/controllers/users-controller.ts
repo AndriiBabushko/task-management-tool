@@ -133,6 +133,20 @@ const deleteUser = async (req: IUserDataRequest, res: Response, next: NextFuncti
   }
 };
 
+const resendActivationMail = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+  try {
+    const status = await UserService.sendActivationMail(req.userData.activationLink, req.userData.email);
+
+    if (!status) {
+      next(new HttpError('Send activation mail failed!', 500));
+    }
+
+    return res.status(200).json({ message: 'Successfully resend activation mail!', success: true });
+  } catch (e) {
+    next(e);
+  }
+};
+
 const getImage = (req: Request, res: Response, next: NextFunction) => {
   try {
     const imageName = req.params.imageName;
@@ -143,4 +157,15 @@ const getImage = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { getUsers, login, signup, activateLink, refreshLink, logout, updateUser, deleteUser, getImage };
+export {
+  getUsers,
+  login,
+  signup,
+  activateLink,
+  refreshLink,
+  logout,
+  updateUser,
+  deleteUser,
+  getImage,
+  resendActivationMail,
+};

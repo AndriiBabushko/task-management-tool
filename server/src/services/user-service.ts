@@ -36,14 +36,6 @@ class UserService {
       throw new HttpError("Couldn't hash password. Please try again.", 500);
     }
 
-    const activationLink: string = uuidv4();
-
-    try {
-      await MailService.sendActivationMail(email, `${process.env.API_URL}/api/users/activate/${activationLink}`);
-    } catch (e) {
-      throw new HttpError('Something went wrong while sending activation mail. Pls, try again!', 500);
-    }
-
     let role;
 
     try {
@@ -63,8 +55,15 @@ class UserService {
       }
     }
 
+    const activationLink: string = uuidv4();
     const roles: Types.ObjectId[] = [role.id];
     let user;
+
+    try {
+      await this.sendActivationMail(activationLink, email);
+    } catch (e) {
+      throw e;
+    }
 
     try {
       user = await UserModel.create({
@@ -342,6 +341,16 @@ class UserService {
     return {
       success: true,
     };
+  }
+
+  async sendActivationMail(activationLink: string, email: string) {
+    try {
+      await MailService.sendActivationMail(email, `${process.env.API_URL}/api/users/activate/${activationLink}`);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
   }
 }
 

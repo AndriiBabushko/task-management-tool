@@ -76,6 +76,8 @@ router.get('/refresh', userController.refreshLink);
 
 router.get('/', AuthMiddleware, userController.getUsers);
 
+router.get('/resendMail', AuthMiddleware, userController.resendActivationMail);
+
 router.get('/images/:imageName', userController.getImage);
 
 export { router };
