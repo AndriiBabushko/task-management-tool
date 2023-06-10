@@ -1,15 +1,18 @@
 const Paths = {
-  home: '/',
+  admin: '/admin',
+  user: '/user',
+  root: '/',
   login: '/login',
   logout: '/logout',
   signup: '/signup',
-  account: '/account',
-  settings: '/settings',
-  task: '/tasks/:taskID',
-  tasks: '/tasks',
-  group: '/groups/:groupID',
-  groups: '/groups',
+  account: 'account',
+  settings: 'settings',
+  task: 'tasks/:taskID',
+  tasks: 'tasks',
+  group: 'groups/:groupID',
+  groups: 'groups',
   activation: '/account/activation',
+  any: '*',
 } as const;
 
 export { Paths };
