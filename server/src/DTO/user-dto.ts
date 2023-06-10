@@ -5,7 +5,7 @@ export default class UserDto {
   username: string;
   email: string;
   password: string;
-  image: string;
+  image: Buffer;
   tasks: [];
   roles: [];
   groups: [];

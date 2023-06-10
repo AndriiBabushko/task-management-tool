@@ -11,7 +11,7 @@ const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
 
     const taskData = await TaskService.getTaskByID(taskID);
 
-    return res.status(200).json(taskData);
+    return res.status(200).json({ ...taskData, message: 'Fetching task by task ID is successful!' });
   } catch (e) {
     next(e);
   }
@@ -23,7 +23,7 @@ const getTasksByCreatorId = async (req: Request, res: Response, next: NextFuncti
 
     const tasksData = await TaskService.getTaskByCreatorID(creatorID);
 
-    return res.status(200).json(tasksData);
+    return res.status(200).json({ ...tasksData, message: 'Fetching tasks by creator ID is successful!' });
   } catch (e) {
     next(e);
   }
@@ -33,7 +33,7 @@ const getTasks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tasksData = await TaskService.getTasks();
 
-    return res.status(200).json(tasksData);
+    return res.status(200).json({ ...tasksData, message: 'Fetching tasks is successful!' });
   } catch (e) {
     next(e);
   }

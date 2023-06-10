@@ -10,7 +10,7 @@ import TokenService from './token-service.js';
 import UserDto from '../DTO/user-dto.js';
 import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
-import { ClientSession, startSession } from 'mongoose';
+import { ClientSession, startSession, Types } from 'mongoose';
 
 class UserService {
   async signup({ name, surname, username, email, password, image }: IUser) {
@@ -44,6 +44,26 @@ class UserService {
       throw new HttpError('Something went wrong while sending activation mail. Pls, try again!', 500);
     }
 
+    let role;
+
+    try {
+      role = await RoleModel.findOne({ name: 'user' });
+    } catch (e) {
+      throw new HttpError('Something went wrong while searching for user role. Please, try again later.', 500);
+    }
+
+    if (!role) {
+      try {
+        role = await RoleModel.create({
+          name: 'user',
+          description: 'Just a user with default access. Nothing special',
+        });
+      } catch (e) {
+        throw new HttpError('Something went wrong while creating not existing user role.', 500);
+      }
+    }
+
+    const roles: Types.ObjectId[] = [role.id];
     let user;
 
     try {
@@ -54,6 +74,7 @@ class UserService {
         email,
         password: hashPassword,
         image,
+        roles,
         activationLink,
       });
     } catch (e) {
@@ -106,8 +127,13 @@ class UserService {
 
     const userDTO: UserDto = new UserDto(user);
     const tokens = TokenService.generateTokens({ ...userDTO });
-    await TokenService.saveToken(userDTO.id, tokens.refreshToken);
+    try {
+      await TokenService.saveToken(userDTO.id, tokens.refreshToken);
+    } catch (e) {
+      throw new HttpError('Something went wrong while saving token in DB!', 500);
+    }
 
+    console.log(tokens);
     return {
       success: true,
       ...tokens,
@@ -287,11 +313,10 @@ class UserService {
   }
 
   async deleteUser(userID: string) {
-    let deletedUser, deletedUserTasks;
+    let deletedUser;
 
     try {
       deletedUser = await UserModel.findById(userID).populate('groups');
-      deletedUserTasks = await TaskModel.find({ creator: userID });
     } catch (e) {
       throw new HttpError('Something went wrong while searching for some user by user ID.', 500);
     }
@@ -304,7 +329,7 @@ class UserService {
       const session: ClientSession = await startSession();
       session.startTransaction();
 
-      await deletedUserTasks.deleteMany({ session });
+      await TaskModel.deleteMany({ creator: userID }, { session });
       await GroupModel.updateMany({ users: { $in: [userID] } }, { $pull: { users: userID } }, { session });
       await GroupModel.updateMany({ creator: userID }, { creator: null }, { session });
 

@@ -5,6 +5,8 @@ import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
 import UserService from '../services/user-service.js';
 import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
+import * as fs from 'fs';
+import path from 'path';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -24,7 +26,7 @@ const signup = async (req: IUserDataRequest, res: Response, next: NextFunction) 
       next(HttpError.BadRequest('Signup validation error. Please, check credentials.', errors.array()));
     }
 
-    const userData = await UserService.signup(req.body);
+    const userData = await UserService.signup({ ...req.body, image: req.file?.path });
 
     res.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -118,8 +120,6 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const deleteUser = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
-    console.log(req.userData);
-
     const userID: string = req.params.userID;
 
     const userData = await UserService.deleteUser(userID);
@@ -133,4 +133,14 @@ const deleteUser = async (req: IUserDataRequest, res: Response, next: NextFuncti
   }
 };
 
-export { getUsers, login, signup, activateLink, refreshLink, logout, updateUser, deleteUser };
+const getImage = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const imageName = req.params.imageName;
+    const imagePath = path.join(__dirname, 'uploads/user', imageName);
+    res.sendFile(imagePath);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { getUsers, login, signup, activateLink, refreshLink, logout, updateUser, deleteUser, getImage };

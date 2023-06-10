@@ -7,7 +7,7 @@ const userSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true, minLength: 3, maxlength: 15 },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minLength: 6 },
-  image: { type: String, required: false },
+  image: { type: String, required: false, default: 'uploads/user/no_user_image.jpg' },
   tasks: [{ type: Types.ObjectId, required: false, ref: 'Task' }],
   roles: [{ type: Types.ObjectId, required: false, ref: 'Role' }],
   groups: [{ type: Types.ObjectId, required: false, ref: 'Group' }],
