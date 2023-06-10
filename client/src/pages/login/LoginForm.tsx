@@ -1,7 +1,7 @@
 import React, { FC, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink } from 'react-router-dom';
-import { IUser } from '../../app/models/IUser';
+import { IUser } from '../../app/models/interfaces/IUser';
 import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { observer } from 'mobx-react-lite';

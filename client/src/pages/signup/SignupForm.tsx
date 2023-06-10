@@ -1,7 +1,7 @@
 import React, { FC, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink } from 'react-router-dom';
-import { IUser } from '../../app/models/IUser';
+import { IUser } from '../../app/models/interfaces/IUser';
 import { ImagePicker } from '../../components/custom/ImagePicker';
 import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { observer } from 'mobx-react-lite';
@@ -22,6 +22,7 @@ export const SignupForm: FC = observer(() => {
 
   return (
     <form
+      encType={`multipart/form-data`}
       className={`text-black`}
       onSubmit={handleSubmit(async (data) => {
         userStore
@@ -222,7 +223,7 @@ export const SignupForm: FC = observer(() => {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="userImage">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
           Image
         </label>
         <ImagePicker inputID={'userImage'} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />

@@ -1,14 +1,16 @@
 import { makeAutoObservable } from 'mobx';
 
 import AuthService from '../services/AuthService';
-import { IUser } from '../models/IUser';
+import { IUser } from '../models/interfaces/IUser';
 import RootStore from './rootStore';
 import UserService from '../services/UserService';
+import RoleService from '../services/RoleService';
 
 export default class UserStore {
   user = {} as IUser;
   isAuth = false;
   rootStore: RootStore;
+  isAdmin = false;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -17,6 +19,10 @@ export default class UserStore {
 
   setAuth(bool: boolean) {
     this.isAuth = bool;
+  }
+
+  setIsAdmin(bool: boolean) {
+    this.isAdmin = bool;
   }
 
   setUser(user: IUser) {
@@ -91,6 +97,34 @@ export default class UserStore {
       this.setAuth(false);
       this.setUser({} as IUser);
       return response;
+    } catch (error) {
+      throw error;
+    } finally {
+      this.rootStore.uiActionsStore.setIsPageLoading(false);
+    }
+  }
+
+  async checkAdmin() {
+    this.rootStore.uiActionsStore.setIsPageLoading(true);
+    try {
+      const roles: string[] = [];
+      for (const roleID of this.user.roles) {
+        const response = await RoleService.getRoleByID(roleID);
+        roles.push(response.data.role.name);
+      }
+
+      roles.some((role) => role == 'admin') && this.setIsAdmin(true);
+    } catch (error) {
+      throw error;
+    } finally {
+      this.rootStore.uiActionsStore.setIsPageLoading(false);
+    }
+  }
+
+  async resendActivationMail() {
+    this.rootStore.uiActionsStore.setIsPageLoading(true);
+    try {
+      return await UserService.resendActivationMail();
     } catch (error) {
       throw error;
     } finally {

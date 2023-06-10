@@ -16,7 +16,7 @@ export const NotificationPopup: FC = observer(() => {
   };
 
   const notificationIcon = (
-    <span>
+    <span className={`flex items-center`}>
       {uiActionsStore.notification.status == 'success' && (
         <div className={`rounded-3xl bg-white text-green-500`}>
           <TiTickOutline className={`text-3xl`} />
@@ -38,12 +38,14 @@ export const NotificationPopup: FC = observer(() => {
 
   return (
     <div className={`${notificationBgColor} w-full py-6`}>
-      <div className={`container flex justify-between mx-auto items-center h-full border-3 border-white`}>
-        <div className={`flex text-white text-center font-bold text-2xl`}>
+      <div className={`container flex md:flex-row sm:flex-col justify-between mx-auto items-center h-full border-3 border-white`}>
+        <div className={`flex text-white text-center font-bold text-2xl w-1/4`}>
           {notificationIcon}
-          <h3 className={`flex items-center h-100 ml-3`}>{uiActionsStore.notification.title}</h3>
+          <h3 className={`flex items-center h-100 ml-2`}>{uiActionsStore.notification.title}</h3>
         </div>
-        <div className={`text-xl`}>{uiActionsStore.notification.message}</div>
+
+        <div className={`text-xl text-center w-full`}>{uiActionsStore.notification.message}</div>
+
         <button className="text-white text-3xl" onClick={handleTogglePopup}>
           <RxCross2 />
         </button>

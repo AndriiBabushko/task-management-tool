@@ -1,18 +1,20 @@
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 
 import { Paths } from '../../paths';
-import { Logo } from './Logo';
 import { UserMenu } from './UserMenu';
+import { RootStoreContext } from '../../app/context/rootStoreContext';
+import { Logo } from './Logo';
 
 const pages = [
   {
     name: 'Home',
-    to: Paths.home,
+    to: Paths.root,
   },
   {
     name: 'Tasks',
-    to: Paths.task,
+    to: Paths.tasks,
   },
   {
     name: 'Groups',
@@ -20,7 +22,10 @@ const pages = [
   },
 ];
 
-export const Navbar: FC = () => {
+export const Navbar: FC = observer(() => {
+  const rootStore = useContext(RootStoreContext);
+  const { uiActionsStore } = rootStore;
+
   return (
     <>
       <nav className={`bg-green-500 rounded-b-2xl w-full px-4 flex py-3 justify-between items-center h-full`}>
@@ -29,7 +34,16 @@ export const Navbar: FC = () => {
         <div className={`flex gap-10`}>
           {pages.map((page) => {
             return (
-              <NavLink key={page.name} to={page.to} className={`text-xl text-white`}>
+              <NavLink
+                key={page.name}
+                to={page.to}
+                className={`text-xl text-white`}
+                onClick={() =>
+                  uiActionsStore.setNotification({
+                    isOpen: false,
+                  })
+                }
+              >
                 {({ isActive }) => {
                   return (
                     <div
@@ -52,4 +66,4 @@ export const Navbar: FC = () => {
       </nav>
     </>
   );
-};
+});

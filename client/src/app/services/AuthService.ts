@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { API_URL, axiosInstance } from '../utils/axios';
 import { AuthResponse } from '../models/response/AuthResponse';
 import { LogoutResponse } from '../models/response/LogoutResponse';
-import { IUser } from '../models/IUser';
+import { IUser } from '../models/interfaces/IUser';
 
 export default class AuthService {
   static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {

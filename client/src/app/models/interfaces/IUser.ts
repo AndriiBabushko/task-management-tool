@@ -6,8 +6,8 @@ export interface IUser {
   email: string;
   password: string;
   image: string;
-  tasks: [];
-  roles: [];
-  groups: [];
+  tasks: string[];
+  roles: string[];
+  groups: string[];
   isActivated: boolean;
 }
