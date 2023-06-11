@@ -27,7 +27,7 @@ const userMenu = [
 
 export const UserMenu: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
-  const { uiActionsStore } = rootStore;
+  const { userStore, uiActionsStore } = rootStore;
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -51,7 +51,18 @@ export const UserMenu: FC = observer(() => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-black bg-opacity-70 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items
+          className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-black
+         bg-opacity-90 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        >
+          <div className="px-4 py-3" role="none">
+            <p className="text-sm text-gray-900 dark:text-white" role="none">
+              {userStore.user.surname} {userStore.user.name}
+            </p>
+            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+              {userStore.user.email}
+            </p>
+          </div>
           {userMenu.map((menu) => {
             return (
               <div key={menu.name} className="px-1 py-1 ">
@@ -60,7 +71,7 @@ export const UserMenu: FC = observer(() => {
                     {({ active }) => (
                       <button
                         className={`${
-                          active ? 'bg-green-400 text-white' : 'text-green-400'
+                          active ? 'bg-green-700 text-white' : 'text-green-400'
                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         {menu.icon}

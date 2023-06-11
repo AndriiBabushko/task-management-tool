@@ -22,7 +22,7 @@ const pages = [
   },
 ];
 
-export const Navbar: FC = observer(() => {
+export const UserNavbar: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
   const { uiActionsStore } = rootStore;
 
@@ -61,7 +61,7 @@ export const Navbar: FC = observer(() => {
         </div>
 
         <div className={`flex text-white rounded-sm`}>
-          <UserMenu></UserMenu>
+          <UserMenu />
         </div>
       </nav>
     </>

@@ -100,6 +100,7 @@ export const App: FC = observer(() => {
               )
             }
           />
+
           <Route path={Paths.admin} element={<AdminLayout />}>
             <Route
               index={true}
@@ -110,6 +111,19 @@ export const App: FC = observer(() => {
                   <Navigate to={Paths.activation} replace={true} />
                 ) : (
                   <AdminHomePage />
+                )
+              }
+            />
+
+            <Route
+              path={Paths.tasks}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <TasksPage />
                 )
               }
             />

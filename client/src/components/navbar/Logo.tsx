@@ -12,10 +12,10 @@ export const Logo: FC<LogoProps> = ({ textSize = 'text-2xl', logoColor = `text-w
   return (
     <NavLink
       to="/"
-      className={`flex text-white text-center font-bold ${textSize} ${logoColor} hover:text-gray-300 transition ease-in-out duration-300`}
+      className={`flex items-center text-white text-center font-bold ${textSize} ${logoColor} hover:text-gray-300 transition ease-in-out duration-300`}
     >
       <SiSpring />
-      <h1 className={`pl-2`}>Task Spring Tool</h1>
+      <h1 className={`pl-1`}>Task Spring Tool</h1>
     </NavLink>
   );
 };
