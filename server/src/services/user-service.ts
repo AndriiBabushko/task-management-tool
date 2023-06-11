@@ -18,7 +18,7 @@ class UserService {
     let indentifiedUser;
 
     try {
-      indentifiedUser = await UserModel.findOne({ email: email });
+      indentifiedUser = await UserModel.findOne({ email: email }).populate(['roles', 'groups']);
     } catch (e) {
       throw new HttpError('Something went wrong while singing up! Please, try again.', 500);
     }
@@ -102,7 +102,7 @@ class UserService {
     let user;
 
     try {
-      user = await UserModel.findOne({ email: email });
+      user = await UserModel.findOne({ email: email }).populate(['roles', 'groups']);
     } catch (e) {
       throw new HttpError('Something went wrong while logging up! Please, try again.', 500);
     }
