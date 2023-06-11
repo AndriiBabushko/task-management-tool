@@ -16,6 +16,7 @@ import { router as categoriesRouter } from './routes/categories-routes.js';
 import { router as rolesRouter } from './routes/roles-routes.js';
 import { router as otherRouter } from './routes/other-routes.js';
 import { ErrorMiddleware } from './middlewares/error-middleware.js';
+import RoleService from './services/role-service.js';
 
 dotenvConfig();
 const mongoURL: string | undefined = process.env.DB_HOST;
@@ -25,8 +26,13 @@ const corsOrigin = process.env.CLIENT_URL;
 const app: Express = express();
 mongoose
   .connect(mongoURL)
-  .then(() => {
+  .then(async () => {
     console.log('DB is connected!');
+    try {
+      await RoleService.createRolesIfNotExist();
+    } catch (e) {
+      throw e;
+    }
   })
   .catch((error) => console.log(error));
 

@@ -2,30 +2,25 @@ import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
 import { NextFunction, Response } from 'express';
 
 import { mongooseModel as RoleModel } from '../models/role-model.js';
-import { IRole } from '../ts/interfaces/IRole.js';
 import HttpError from '../exceptions/http-error.js';
 
 export const RoleMiddleware = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
     const userData = req.userData;
 
-    console.log(userData);
-    const roles: IRole[] = [];
+    userData.roles.map(async (roleID: string) => {
+      let role;
 
-    req.userData.roles.map(async (roleID: string) => {
       try {
-        const role = await RoleModel.findById(roleID);
-        roles.push(role);
+        role = await RoleModel.findById(roleID);
       } catch (e) {
         next(new HttpError('Something went wrong while searching for roles.', 500));
       }
+
+      if (role.name == 'admin') next();
     });
 
-    if (roles.some((role) => role.name != 'admin')) {
-      next(new HttpError('Access denied!', 403));
-    }
-
-    next();
+    next(new HttpError('Access denied!', 403));
   } catch (e) {
     next(e);
   }

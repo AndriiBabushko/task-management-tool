@@ -121,6 +121,87 @@ class RoleService {
       success: true,
     };
   }
+
+  async createUserRole() {
+    let userRole;
+
+    try {
+      userRole = await RoleModel.findOne({ name: 'user' });
+    } catch (e) {
+      throw new HttpError('Something went wrong while searching for user role. Please try again later.', 500);
+    }
+
+    if (!userRole) {
+      try {
+        userRole = await RoleModel.create({
+          name: 'user',
+          description: 'Just a user with default access. Nothing special',
+        });
+
+        console.log(userRole);
+      } catch (e) {
+        throw new HttpError('Something went wrong while creating the non-existing user role.', 500);
+      }
+    }
+
+    return userRole;
+  }
+
+  async createAdminRole() {
+    let adminRole;
+
+    try {
+      adminRole = await RoleModel.findOne({ name: 'admin' });
+    } catch (e) {
+      throw new HttpError('Something went wrong while searching for admin role. Please try again later.', 500);
+    }
+
+    if (!adminRole) {
+      try {
+        adminRole = await RoleModel.create({
+          name: 'admin',
+          description: 'Boss of the gym!',
+        });
+      } catch (e) {
+        throw new HttpError('Something went wrong while creating the non-existing admin role.', 500);
+      }
+    }
+
+    return adminRole;
+  }
+
+  async createOwnerRole() {
+    let ownerRole;
+
+    try {
+      ownerRole = await RoleModel.findOne({ name: 'owner' });
+    } catch (e) {
+      throw new HttpError('Something went wrong while searching for owner role. Please try again later.', 500);
+    }
+
+    if (!ownerRole) {
+      try {
+        ownerRole = await RoleModel.create({
+          name: 'owner',
+          description: 'Group owner.',
+        });
+      } catch (e) {
+        throw new HttpError('Something went wrong while creating the non-existing owner role.', 500);
+      }
+    }
+
+    return ownerRole;
+  }
+
+  async createRolesIfNotExist() {
+    try {
+      await this.createAdminRole();
+      await this.createUserRole();
+      await this.createOwnerRole();
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 export default new RoleService();

@@ -3,6 +3,7 @@ import { Router } from 'express';
 import * as rolesController from '../controllers/roles-controller.js';
 import { AuthMiddleware } from '../middlewares/auth-middleware.js';
 import { body, ValidationChain } from 'express-validator';
+import { RoleMiddleware } from '../middlewares/role-middleware.js';
 
 const router: Router = Router();
 const roleHandlers: ValidationChain[] = [body('name').optional().isLength({ min: 3, max: 18 })];
@@ -15,6 +16,6 @@ router.post('/', roleHandlers, AuthMiddleware, rolesController.createRole);
 
 router.patch('/:roleID', roleHandlers, AuthMiddleware, rolesController.updateRoleById);
 
-router.delete('/:roleID', AuthMiddleware, rolesController.deleteRoleById);
+router.delete('/:roleID', AuthMiddleware, RoleMiddleware, rolesController.deleteRoleById);
 
 export { router };

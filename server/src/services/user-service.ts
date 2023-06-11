@@ -11,6 +11,7 @@ import UserDto from '../DTO/user-dto.js';
 import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
 import { ClientSession, startSession, Types } from 'mongoose';
+import RoleService from './role-service.js';
 
 class UserService {
   async signup({ name, surname, username, email, password, image }: IUser) {
@@ -36,27 +37,24 @@ class UserService {
       throw new HttpError("Couldn't hash password. Please try again.", 500);
     }
 
-    let role;
+    let userRole;
 
     try {
-      role = await RoleModel.findOne({ name: 'user' });
+      userRole = await RoleModel.findOne({ name: 'user' });
     } catch (e) {
-      throw new HttpError('Something went wrong while searching for user role. Please, try again later.', 500);
+      throw e;
     }
 
-    if (!role) {
+    if (!userRole) {
       try {
-        role = await RoleModel.create({
-          name: 'user',
-          description: 'Just a user with default access. Nothing special',
-        });
+        userRole = await RoleService.createUserRole();
       } catch (e) {
-        throw new HttpError('Something went wrong while creating not existing user role.', 500);
+        throw e;
       }
     }
 
     const activationLink: string = uuidv4();
-    const roles: Types.ObjectId[] = [role.id];
+    const roles: Types.ObjectId[] = [userRole.id];
     let user;
 
     try {
@@ -288,8 +286,14 @@ class UserService {
       if (username) updatedUser.username = username;
       if (password) updatedUser.password = password;
       if (image) updatedUser.image = image;
-      if (roles) updatedUser.roles = roles;
-      if (groups) updatedUser.groups = groups;
+      if (roles) {
+        if (updatedUser.roles.length == 0) updatedUser.roles = roles;
+        else updatedUser.roles = [...updatedUser.roles, ...roles];
+      }
+      if (groups) {
+        if (updatedUser.groups.length == 0) updatedUser.groups = groups;
+        else updatedUser.groups = [...updatedUser.groups, ...groups];
+      }
 
       try {
         await updatedUser.save();
