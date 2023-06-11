@@ -1,10 +1,9 @@
 import { makeAutoObservable } from 'mobx';
 
 import AuthService from '../services/AuthService';
-import { IUser } from '../models/interfaces/IUser';
 import RootStore from './rootStore';
 import UserService from '../services/UserService';
-import RoleService from '../services/RoleService';
+import { IUser } from '../models/interfaces/IUser';
 
 export default class UserStore {
   user = {} as IUser;
@@ -65,6 +64,7 @@ export default class UserStore {
       const response = await AuthService.logout();
       localStorage.removeItem('token');
       this.setAuth(false);
+      this.setIsAdmin(false);
       this.setUser({} as IUser);
       return response;
     } catch (error) {
@@ -81,6 +81,16 @@ export default class UserStore {
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
+
+      const roles = [...response.data.user.roles];
+
+      roles.map((r) => {
+        if (r.name == 'admin') {
+          this.setIsAdmin(true);
+          return true;
+        }
+      });
+
       return response;
     } catch (error) {
       throw error;
@@ -97,23 +107,6 @@ export default class UserStore {
       this.setAuth(false);
       this.setUser({} as IUser);
       return response;
-    } catch (error) {
-      throw error;
-    } finally {
-      this.rootStore.uiActionsStore.setIsPageLoading(false);
-    }
-  }
-
-  async checkAdmin() {
-    this.rootStore.uiActionsStore.setIsPageLoading(true);
-    try {
-      const roles: string[] = [];
-      for (const roleID of this.user.roles) {
-        const response = await RoleService.getRoleByID(roleID);
-        roles.push(response.data.role.name);
-      }
-
-      roles.some((role) => role == 'admin') && this.setIsAdmin(true);
     } catch (error) {
       throw error;
     } finally {

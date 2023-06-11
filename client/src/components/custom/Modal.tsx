@@ -48,7 +48,7 @@ export const Modal: FC<IModalProps> = ({ children, title, message, show, onClose
                     <p className="text-md">{message}</p>
                   </span>
 
-                  <div className="flex justify-between">{children}</div>
+                  <div className="flex flex-col items-center justify-between">{children}</div>
                 </Dialog.Panel>
               </Transition.Child>
             </div>

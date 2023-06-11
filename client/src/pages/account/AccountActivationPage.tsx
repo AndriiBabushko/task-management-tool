@@ -9,9 +9,9 @@ export const AccountActivationPage: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
   const { userStore, uiActionsStore } = rootStore;
 
-  const buttonClasses = `inline-flex justify-center rounded-md border border-transparent px-4
-   py-2 text-sm font-medium bg-green-600 hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 
-   focus-visible:ring-green-600 focus-visible:ring-offset-2`;
+  const buttonClasses =
+    'inline-flex justify-center rounded-md border border-transparent px-4 py-2 mt-2 text-sm font-medium bg-green-600 ' +
+    'hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 w-full';
 
   const onClickNoAccountHandler = () => {
     userStore

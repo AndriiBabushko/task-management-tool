@@ -1,3 +1,6 @@
+import { IRole } from './IRole';
+import { IGroup } from './IGroup';
+
 export interface IUser {
   id: string;
   name: string;
@@ -7,7 +10,7 @@ export interface IUser {
   password: string;
   image: string;
   tasks: string[];
-  roles: string[];
-  groups: string[];
+  roles: IRole[];
+  groups: IGroup[];
   isActivated: boolean;
 }

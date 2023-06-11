@@ -1,156 +1,207 @@
 import React, { FC, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import loadable from '@loadable/component';
 
-import { SpinnerLoader } from '../components/custom/SpinnerLoader';
 import { RootStoreContext } from './context/rootStoreContext';
-import { NotificationPopup } from '../components/custom/NotificationPopup';
 import { Paths } from '../paths';
-import { AccountActivationPage } from '../pages/account/AccountActivationPage';
-import { SignupPage } from '../pages/signup/SignupPage';
-import { LoginPage } from '../pages/login/LoginPage';
-import { NoPageFound } from '../pages/NoPageFound';
-import { Layout } from '../components/layout/Layout';
-import { AdminLayout } from '../components/layout/AdminLayout';
-import { HomePage } from '../pages/home/HomePage';
-import { LogoutPage } from '../pages/logout/LogoutPage';
-import { TasksPage } from '../pages/tasks/TasksPage';
-import { GroupsPage } from '../pages/groups/GroupsPage';
-import { TaskPage } from '../pages/tasks/TaskPage';
-import { GroupPage } from '../pages/groups/GroupPage';
-import { AccountPage } from '../pages/account/AccountPage';
-import { SettingsPage } from '../pages/settings/SettingsPage';
+
+const SpinnerLoader = loadable(() => import('../components/custom/SpinnerLoader'), {
+  resolveComponent: (components) => components.SpinnerLoader,
+});
+const NotificationPopup = loadable(() => import('../components/custom/NotificationPopup'), {
+  resolveComponent: (components) => components.NotificationPopup,
+});
+const AccountActivationPage = loadable(() => import('../pages/account/AccountActivationPage'), {
+  resolveComponent: (components) => components.AccountActivationPage,
+});
+const SignupPage = loadable(() => import('../pages/signup/SignupPage'), {
+  resolveComponent: (components) => components.SignupPage,
+});
+const LoginPage = loadable(() => import('../pages/login/LoginPage'), {
+  resolveComponent: (components) => components.LoginPage,
+});
+const NoPageFound = loadable(() => import('../pages/NoPageFound'), {
+  resolveComponent: (components) => components.NoPageFound,
+});
+const UserLayout = loadable(() => import('../components/layout/UserLayout'), {
+  resolveComponent: (components) => components.UserLayout,
+});
+const AdminLayout = loadable(() => import('../components/layout/AdminLayout'), {
+  resolveComponent: (components) => components.AdminLayout,
+});
+const UserHomePage = loadable(() => import('../pages/home/UserHomePage'), {
+  resolveComponent: (components) => components.UserHomePage,
+});
+const AdminHomePage = loadable(() => import('../pages/home/AdminHomePage'), {
+  resolveComponent: (components) => components.AdminHomePage,
+});
+const LogoutPage = loadable(() => import('../pages/logout/LogoutPage'), {
+  resolveComponent: (components) => components.LogoutPage,
+});
+const TasksPage = loadable(() => import('../pages/tasks/TasksPage'), {
+  resolveComponent: (components) => components.TasksPage,
+});
+const GroupsPage = loadable(() => import('../pages/groups/GroupsPage'), {
+  resolveComponent: (components) => components.GroupsPage,
+});
+const TaskPage = loadable(() => import('../pages/tasks/TaskPage'), {
+  resolveComponent: (components) => components.TaskPage,
+});
+const GroupPage = loadable(() => import('../pages/groups/GroupPage'), {
+  resolveComponent: (components) => components.GroupPage,
+});
+const AccountPage = loadable(() => import('../pages/account/AccountPage'), {
+  resolveComponent: (components) => components.AccountPage,
+});
+const SettingsPage = loadable(() => import('../pages/settings/SettingsPage'), {
+  resolveComponent: (components) => components.SettingsPage,
+});
 
 export const App: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
   const { userStore, uiActionsStore } = rootStore;
-  const rolePath = userStore.isAdmin ? Paths.admin : Paths.user;
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      userStore.checkAuth().catch((error) => {
-        console.log(error);
-      });
       userStore
-        .checkAdmin()
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        .checkAuth()
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error));
     }
   }, []);
 
-  const router = createBrowserRouter([
-    { path: '/', element: <Navigate to={rolePath} /> },
-    { path: Paths.any, element: <NoPageFound /> },
-    { path: Paths.activation, element: !userStore.user.isActivated && userStore.user.email ? <AccountActivationPage /> : <Navigate to={rolePath} /> },
-    { path: Paths.signup, element: !userStore.isAuth ? <SignupPage /> : <Navigate to={rolePath} /> },
-    { path: Paths.login, element: !userStore.isAuth ? <LoginPage /> : <Navigate to={rolePath} /> },
-    {
-      path: Paths.logout,
-      element: !userStore.isAuth ? <Navigate to={Paths.login} /> : !userStore.user.isActivated ? <Navigate to={Paths.activation} /> : <LogoutPage />,
-    },
-    {
-      path: Paths.admin,
-      element: <AdminLayout />,
-      children: [
-        {
-          index: true,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <HomePage />
-          ),
-        },
-      ],
-    },
-    {
-      path: Paths.user,
-      element: <Layout />,
-      children: [
-        {
-          index: true,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <HomePage />
-          ),
-        },
-        {
-          path: Paths.tasks,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <TasksPage />
-          ),
-        },
-        {
-          path: Paths.groups,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <GroupsPage />
-          ),
-        },
-        {
-          path: Paths.task,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <TaskPage />
-          ),
-        },
-        {
-          path: Paths.group,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <GroupPage />
-          ),
-        },
-        {
-          path: Paths.account,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <AccountPage />
-          ),
-        },
-        {
-          path: Paths.settings,
-          element: !userStore.isAuth ? (
-            <Navigate to={Paths.login} />
-          ) : !userStore.user.isActivated ? (
-            <Navigate to={Paths.activation} />
-          ) : (
-            <SettingsPage />
-          ),
-        },
-      ],
-    },
-  ]);
+  const rolePath = userStore.isAdmin ? Paths.admin : Paths.user;
+  console.log(rolePath);
 
   return (
     <>
       {uiActionsStore.notification.isOpen && <NotificationPopup />}
-      {uiActionsStore.isPageLoading && <SpinnerLoader spinnerText={`Loading...`} />}
-      <RouterProvider router={router} />
+      {uiActionsStore.isPageLoading && <SpinnerLoader />}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={!userStore.isAuth ? <Navigate to={Paths.login} replace={true} /> : <Navigate to={rolePath} replace={true} />} />
+          <Route path={Paths.any} element={<NoPageFound />} />
+          <Route
+            path={Paths.activation}
+            element={!userStore.user.isActivated && userStore.user.email ? <AccountActivationPage /> : <Navigate to={rolePath} replace={true} />}
+          />
+          <Route path={Paths.signup} element={!userStore.isAuth ? <SignupPage /> : <Navigate to={rolePath} replace={true} />} />
+          <Route path={Paths.login} element={!userStore.isAuth ? <LoginPage /> : <Navigate to={rolePath} replace={true} />} />
+          <Route
+            path={Paths.logout}
+            element={
+              !userStore.isAuth ? (
+                <Navigate to={Paths.login} replace={true} />
+              ) : !userStore.user.isActivated ? (
+                <Navigate to={Paths.activation} replace={true} />
+              ) : (
+                <LogoutPage />
+              )
+            }
+          />
+          <Route path={Paths.admin} element={<AdminLayout />}>
+            <Route
+              index={true}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <AdminHomePage />
+                )
+              }
+            />
+          </Route>
+          <Route path={Paths.user} element={<UserLayout />}>
+            <Route
+              index={true}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <UserHomePage />
+                )
+              }
+            />
+            <Route
+              path={Paths.tasks}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <TasksPage />
+                )
+              }
+            />
+            <Route
+              path={Paths.groups}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <GroupsPage />
+                )
+              }
+            />
+            <Route
+              path={Paths.task}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <TaskPage />
+                )
+              }
+            />
+            <Route
+              path={Paths.group}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <GroupPage />
+                )
+              }
+            />
+            <Route
+              path={Paths.account}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <AccountPage />
+                )
+              }
+            />
+            <Route
+              path={Paths.settings}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <SettingsPage />
+                )
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </>
   );
 });
