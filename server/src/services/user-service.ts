@@ -184,7 +184,7 @@ class UserService {
       throw HttpError.UnauthorizedError();
     }
 
-    const user = await UserModel.findById(userData.id);
+    const user = await UserModel.findById(userData.id).populate(['roles', 'groups']);
     const userDTO = new UserDto(user);
     const tokens = TokenService.generateTokens({ ...userDTO });
 
