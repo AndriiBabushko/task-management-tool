@@ -21,30 +21,53 @@ const SignupPage = loadable(() => import('../pages/signup/SignupPage'), {
 const LoginPage = loadable(() => import('../pages/login/LoginPage'), {
   resolveComponent: (components) => components.LoginPage,
 });
+const LogoutPage = loadable(() => import('../pages/logout/LogoutPage'), {
+  resolveComponent: (components) => components.LogoutPage,
+});
 const NoPageFound = loadable(() => import('../pages/NoPageFound'), {
   resolveComponent: (components) => components.NoPageFound,
 });
+
 const UserLayout = loadable(() => import('../components/layout/UserLayout'), {
   resolveComponent: (components) => components.UserLayout,
 });
 const AdminLayout = loadable(() => import('../components/layout/AdminLayout'), {
   resolveComponent: (components) => components.AdminLayout,
 });
+
 const UserHomePage = loadable(() => import('../pages/home/UserHomePage'), {
   resolveComponent: (components) => components.UserHomePage,
 });
 const AdminHomePage = loadable(() => import('../pages/home/AdminHomePage'), {
   resolveComponent: (components) => components.AdminHomePage,
 });
-const LogoutPage = loadable(() => import('../pages/logout/LogoutPage'), {
-  resolveComponent: (components) => components.LogoutPage,
+
+const UserTasksPage = loadable(() => import('../pages/tasks/UserTasksPage'), {
+  resolveComponent: (components) => components.UserTasksPage,
 });
-const TasksPage = loadable(() => import('../pages/tasks/TasksPage'), {
-  resolveComponent: (components) => components.TasksPage,
+const AdminTasksPage = loadable(() => import('../pages/tasks/AdminTasksPage'), {
+  resolveComponent: (components) => components.AdminTasksPage,
 });
-const GroupsPage = loadable(() => import('../pages/groups/GroupsPage'), {
-  resolveComponent: (components) => components.GroupsPage,
+const AdminIndexTasksPage = loadable(() => import('../pages/tasks/AdminIndexTasksPage'), {
+  resolveComponent: (components) => components.AdminIndexTasksPage,
 });
+const CreateTaskPage = loadable(() => import('../pages/tasks/CreateTaskPage'), {
+  resolveComponent: (components) => components.CreateTaskPage,
+});
+const UpdateTaskPage = loadable(() => import('../pages/tasks/UpdateTaskPage'), {
+  resolveComponent: (components) => components.UpdateTaskPage,
+});
+const DeleteTaskPage = loadable(() => import('../pages/tasks/DeleteTaskPage'), {
+  resolveComponent: (components) => components.DeleteTaskPage,
+});
+
+const UserGroupsPage = loadable(() => import('../pages/groups/UserGroupsPage'), {
+  resolveComponent: (components) => components.UserGroupsPage,
+});
+const AdminGroupsPage = loadable(() => import('../pages/groups/AdminGroupsPage'), {
+  resolveComponent: (components) => components.AdminGroupsPage,
+});
+
 const TaskPage = loadable(() => import('../pages/tasks/TaskPage'), {
   resolveComponent: (components) => components.TaskPage,
 });
@@ -71,8 +94,7 @@ export const App: FC = observer(() => {
     }
   }, []);
 
-  const rolePath = userStore.isAdmin ? Paths.admin : Paths.user;
-  console.log(rolePath);
+  const rolePath = (userStore.isAdmin ? Paths.admin : Paths.user) + '/home';
 
   return (
     <>
@@ -96,7 +118,9 @@ export const App: FC = observer(() => {
               ) : !userStore.user.isActivated ? (
                 <Navigate to={Paths.activation} replace={true} />
               ) : (
-                <LogoutPage />
+                <>
+                  <LogoutPage />
+                </>
               )
             }
           />
@@ -114,7 +138,18 @@ export const App: FC = observer(() => {
                 )
               }
             />
-
+            <Route
+              path={Paths.home}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <AdminHomePage />
+                )
+              }
+            />
             <Route
               path={Paths.tasks}
               element={
@@ -123,14 +158,89 @@ export const App: FC = observer(() => {
                 ) : !userStore.user.isActivated ? (
                   <Navigate to={Paths.activation} replace={true} />
                 ) : (
-                  <TasksPage />
+                  <AdminTasksPage />
                 )
               }
-            />
+            >
+              <Route
+                index={true}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <AdminIndexTasksPage />
+                  )
+                }
+              />
+              <Route
+                path={Paths.taskId}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <TaskPage />
+                  )
+                }
+              />
+              <Route
+                path={Paths.create}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <CreateTaskPage />
+                  )
+                }
+              />
+              <Route
+                path={Paths.update + '/' + Paths.taskId}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <UpdateTaskPage />
+                  )
+                }
+              />
+              <Route
+                path={Paths.delete + '/' + Paths.taskId}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <DeleteTaskPage />
+                  )
+                }
+              />
+            </Route>
+
+            <Route
+              path={Paths.groups}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <AdminGroupsPage />
+                )
+              }
+            ></Route>
           </Route>
+
           <Route path={Paths.user} element={<UserLayout />}>
             <Route
-              index={true}
+              path={Paths.home}
               element={
                 !userStore.isAuth ? (
                   <Navigate to={Paths.login} replace={true} />
@@ -149,10 +259,24 @@ export const App: FC = observer(() => {
                 ) : !userStore.user.isActivated ? (
                   <Navigate to={Paths.activation} replace={true} />
                 ) : (
-                  <TasksPage />
+                  <UserTasksPage />
                 )
               }
-            />
+            >
+              <Route
+                path={Paths.taskId}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <TaskPage />
+                  )
+                }
+              />
+            </Route>
+
             <Route
               path={Paths.groups}
               element={
@@ -161,34 +285,24 @@ export const App: FC = observer(() => {
                 ) : !userStore.user.isActivated ? (
                   <Navigate to={Paths.activation} replace={true} />
                 ) : (
-                  <GroupsPage />
+                  <UserGroupsPage />
                 )
               }
-            />
-            <Route
-              path={Paths.task}
-              element={
-                !userStore.isAuth ? (
-                  <Navigate to={Paths.login} replace={true} />
-                ) : !userStore.user.isActivated ? (
-                  <Navigate to={Paths.activation} replace={true} />
-                ) : (
-                  <TaskPage />
-                )
-              }
-            />
-            <Route
-              path={Paths.group}
-              element={
-                !userStore.isAuth ? (
-                  <Navigate to={Paths.login} replace={true} />
-                ) : !userStore.user.isActivated ? (
-                  <Navigate to={Paths.activation} replace={true} />
-                ) : (
-                  <GroupPage />
-                )
-              }
-            />
+            >
+              <Route
+                path={Paths.groupId}
+                element={
+                  !userStore.isAuth ? (
+                    <Navigate to={Paths.login} replace={true} />
+                  ) : !userStore.user.isActivated ? (
+                    <Navigate to={Paths.activation} replace={true} />
+                  ) : (
+                    <GroupPage />
+                  )
+                }
+              />
+            </Route>
+
             <Route
               path={Paths.account}
               element={
