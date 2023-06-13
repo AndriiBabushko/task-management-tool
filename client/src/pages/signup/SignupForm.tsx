@@ -2,10 +2,11 @@ import React, { FC, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink } from 'react-router-dom';
 import { IUser } from '../../app/models/interfaces/IUser';
-import { ImagePicker } from '../../components/custom/ImagePicker';
 import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { observer } from 'mobx-react-lite';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { CustomButton } from '../../components/custom/CustomButton';
+import { Paths } from '../../paths';
 
 export const SignupForm: FC = observer(() => {
   const {
@@ -14,7 +15,6 @@ export const SignupForm: FC = observer(() => {
     formState: { errors },
     watch,
   } = useForm();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const rootStore = useContext(RootStoreContext);
@@ -22,7 +22,9 @@ export const SignupForm: FC = observer(() => {
 
   return (
     <form
+      method={`POST`}
       encType={`multipart/form-data`}
+      action={`/api/users/signup`}
       className={`text-black`}
       onSubmit={handleSubmit(async (data) => {
         userStore
@@ -31,6 +33,7 @@ export const SignupForm: FC = observer(() => {
             surname: data.surname,
             username: data.username,
             email: data.email,
+            image: data.image[0],
             password: data.password,
           } as IUser)
           .then((response) => {
@@ -226,21 +229,22 @@ export const SignupForm: FC = observer(() => {
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
           Image
         </label>
-        <ImagePicker inputID={'userImage'} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
+        <input
+          className="block w-full mb-5 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
+           dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          type="file"
+          accept="image/*"
+          {...register('image')}
+        />
       </div>
 
       <div className="flex items-center flex-col justify-between">
-        <button
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-          type="submit"
-        >
-          Create a Task Spring Tool account
-        </button>
+        <CustomButton buttonText={'Create a Task Spring Tool account'} buttonType={'submit'} />
 
         <p className={`mt-5 mb-2`}>If you have an account</p>
 
         <NavLink
-          to={'/login'}
+          to={Paths.login}
           className="text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
         >
           Login
