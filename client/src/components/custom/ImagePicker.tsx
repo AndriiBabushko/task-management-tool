@@ -29,7 +29,7 @@ export const ImagePicker: FC<IImagePicker> = ({ inputID, selectedImage, setSelec
 
   return (
     <>
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} id={inputID} className="hidden" />
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} id={inputID} className="hidden" name={`image`} />
 
       <div className="relative">
         <button onClick={handleChooseButtonClick} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
