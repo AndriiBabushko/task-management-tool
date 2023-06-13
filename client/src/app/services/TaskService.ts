@@ -2,6 +2,8 @@ import { AxiosResponse } from 'axios';
 import { TaskResponse } from '../models/response/TaskResponse';
 import { axiosInstance } from '../utils/axios';
 import { TasksResponse } from '../models/response/TasksResponse';
+import { ITask } from '../models/interfaces/ITask';
+import { DeleteResponse } from '../models/response/DeleteResponse';
 
 export default class TaskService {
   static async fetchTasks(): Promise<AxiosResponse<TasksResponse>> {
@@ -10,5 +12,17 @@ export default class TaskService {
 
   static async fetchTaskByID(taskID: string): Promise<AxiosResponse<TaskResponse>> {
     return axiosInstance.get<TaskResponse>(`/tasks/${taskID}`);
+  }
+
+  static async create(taskData: ITask): Promise<AxiosResponse<TaskResponse>> {
+    return axiosInstance.postForm<TaskResponse>(`/tasks/`, { ...taskData });
+  }
+
+  static async update(taskID: string, taskData: ITask): Promise<AxiosResponse<TaskResponse>> {
+    return axiosInstance.patchForm<TaskResponse>(`/tasks/${taskID}`, { ...taskData });
+  }
+
+  static async delete(taskID: string): Promise<AxiosResponse<DeleteResponse>> {
+    return axiosInstance.delete<TaskResponse>(`/tasks/${taskID}`);
   }
 }

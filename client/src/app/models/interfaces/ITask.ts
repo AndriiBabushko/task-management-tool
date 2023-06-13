@@ -4,6 +4,7 @@ export interface ITask {
   description: string;
   creationDate: Date;
   deadlineDate: Date;
+  image: string;
   creator: string;
   tags: string[];
   categories: string[];

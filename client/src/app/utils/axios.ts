@@ -3,7 +3,7 @@ import AuthService from '../services/AuthService';
 
 export const API_URL = 'http://localhost:5000/api';
 
-const axiosInstance = axios.create({ baseURL: API_URL, withCredentials: true, responseType: 'json' });
+const axiosInstance = axios.create({ baseURL: API_URL, withCredentials: true });
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem(`token`);

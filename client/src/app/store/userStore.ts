@@ -4,6 +4,7 @@ import AuthService from '../services/AuthService';
 import RootStore from './rootStore';
 import UserService from '../services/UserService';
 import { IUser } from '../models/interfaces/IUser';
+import { AxiosResponse } from 'axios';
 
 export default class UserStore {
   user = {} as IUser;
@@ -35,6 +36,9 @@ export default class UserStore {
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
+
+      this.checkRoles(response);
+
       return response;
     } catch (error) {
       throw error;
@@ -50,6 +54,9 @@ export default class UserStore {
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
+
+      this.checkRoles(response);
+
       return response;
     } catch (error) {
       throw error;
@@ -82,14 +89,7 @@ export default class UserStore {
       this.setAuth(true);
       this.setUser(response.data.user);
 
-      const roles = [...response.data.user.roles];
-
-      roles.map((r) => {
-        if (r.name == 'admin') {
-          this.setIsAdmin(true);
-          return true;
-        }
-      });
+      this.checkRoles(response);
 
       return response;
     } catch (error) {
@@ -123,5 +123,16 @@ export default class UserStore {
     } finally {
       this.rootStore.uiActionsStore.setIsPageLoading(false);
     }
+  }
+
+  private checkRoles(response: AxiosResponse) {
+    const roles = [...response.data.user.roles];
+
+    roles.map((r) => {
+      if (r.name == 'admin') {
+        this.setIsAdmin(true);
+        return true;
+      }
+    });
   }
 }

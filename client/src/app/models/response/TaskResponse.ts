@@ -1,7 +1,7 @@
-import { ITask } from '../interfaces/ITask';
+import { PopulatedITask } from '../interfaces/PopulatedITask';
 
 export interface TaskResponse {
   success: boolean;
   message: string;
-  task: ITask;
+  task: PopulatedITask;
 }

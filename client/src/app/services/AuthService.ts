@@ -10,7 +10,15 @@ export default class AuthService {
   }
 
   static async signup(userData: IUser): Promise<AxiosResponse<AuthResponse>> {
-    return await axiosInstance.post<AuthResponse>('/users/signup', { ...userData });
+    return await axiosInstance.post<AuthResponse>(
+      '/users/signup',
+      { ...userData },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
   }
 
   static async logout(): Promise<AxiosResponse<LogoutResponse>> {
@@ -19,5 +27,6 @@ export default class AuthService {
 
   static async checkAuth(): Promise<AxiosResponse<AuthResponse>> {
     return await axios.get<AuthResponse>(`${API_URL}/users/refresh`, { withCredentials: true });
+    // return await axiosInstance.get<AuthResponse>(`users/refresh`);
   }
 }
