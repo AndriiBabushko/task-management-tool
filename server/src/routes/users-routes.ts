@@ -1,18 +1,18 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+import multer from 'multer';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import * as userController from '../controllers/users-controller.js';
 import { AuthMiddleware } from '../middlewares/auth-middleware.js';
-import multer from 'multer';
 
 const router: Router = Router();
 const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, 'uploads/user');
-  },
+  destination: path.join(dirname(dirname(dirname(fileURLToPath(import.meta.url)))), 'uploads/user'),
   filename: (req, file, callback) => {
     console.log(file);
-    callback(null, file.fieldname);
+    callback(null, file.fieldname + Date.now() + '.' + file.mimetype.split('/')[1]);
   },
 });
 const upload = multer({ storage });
@@ -78,6 +78,6 @@ router.get('/', AuthMiddleware, userController.getUsers);
 
 router.get('/resendMail', AuthMiddleware, userController.resendActivationMail);
 
-router.get('/images/:imageName', userController.getImage);
+router.post('/upload', upload.single('image'), userController.uploadImage);
 
 export { router };

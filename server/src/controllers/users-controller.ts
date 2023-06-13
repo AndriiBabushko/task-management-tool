@@ -5,8 +5,6 @@ import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
 import UserService from '../services/user-service.js';
 import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
-import * as fs from 'fs';
-import path from 'path';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -18,15 +16,17 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const signup = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
 
     if (!errors.isEmpty()) {
       next(HttpError.BadRequest('Signup validation error. Please, check credentials.', errors.array()));
     }
 
-    const userData = await UserService.signup({ ...req.body, image: req.file?.path });
+    const imagePath = `uploads/user/${req.file.filename}`;
+
+    const userData = await UserService.signup({ ...req.body, image: imagePath });
 
     res.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -41,14 +41,13 @@ const signup = async (req: IUserDataRequest, res: Response, next: NextFunction) 
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
 
     if (!errors.isEmpty()) {
       next(HttpError.BadRequest('Login validation error. Please, check credentials.', errors.array()));
     }
 
-    const { email, password }: IUser = req.body;
-    const userData = await UserService.login(email, password);
+    const userData = await UserService.login({ ...req.body });
 
     res.cookie('refreshToken', userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -102,15 +101,17 @@ const refreshLink = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
 
     if (!errors.isEmpty()) {
       next(HttpError.BadRequest('Update user validation error. Please, check your credentials.', errors.array()));
     }
 
+    const imagePath = `uploads/user/${req.file.filename}`;
+
     const userID: string = req.params.userID;
 
-    const userData = await UserService.updateUser(userID, req.body);
+    const userData = await UserService.updateUser(userID, { ...req.body, image: imagePath });
 
     return res.status(200).json({ ...userData, message: 'User is successfully updated!' });
   } catch (e) {
@@ -147,11 +148,9 @@ const resendActivationMail = async (req: IUserDataRequest, res: Response, next: 
   }
 };
 
-const getImage = (req: Request, res: Response, next: NextFunction) => {
+const uploadImage = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const imageName = req.params.imageName;
-    const imagePath = path.join(__dirname, 'uploads/user', imageName);
-    res.sendFile(imagePath);
+    res.send('Image Uploaded!');
   } catch (e) {
     next(e);
   }
@@ -166,6 +165,6 @@ export {
   logout,
   updateUser,
   deleteUser,
-  getImage,
+  uploadImage,
   resendActivationMail,
 };

@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { ClientSession, startSession, Types } from 'mongoose';
+import { existsSync, unlinkSync } from 'fs';
 
 import { mongooseModel as UserModel } from '../models/user-model.js';
 import { mongooseModel as RoleModel } from '../models/role-model.js';
@@ -10,8 +12,8 @@ import TokenService from './token-service.js';
 import UserDto from '../DTO/user-dto.js';
 import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
-import { ClientSession, startSession, Types } from 'mongoose';
 import RoleService from './role-service.js';
+import ImageService from './image-service.js';
 
 class UserService {
   async signup({ name, surname, username, email, password, image }: IUser) {
@@ -98,7 +100,7 @@ class UserService {
     };
   }
 
-  async login(email: string, password: string) {
+  async login({ email, password }: IUser) {
     let user;
 
     try {
@@ -281,6 +283,8 @@ class UserService {
         throw new HttpError("Couldn't find a user for the provided user ID!", 404);
       }
 
+      ImageService.deleteImage(updatedUser, 'uploads/user/no_user_image.jpg');
+
       if (name) updatedUser.name = name;
       if (surname) updatedUser.surname = surname;
       if (username) updatedUser.username = username;
@@ -327,6 +331,8 @@ class UserService {
     if (!deletedUser) {
       throw new HttpError("Couldn't find a user for the provided user ID!", 404);
     }
+
+    ImageService.deleteImage(deletedUser, 'uploads/user/no_user_image.jpg');
 
     try {
       const session: ClientSession = await startSession();
