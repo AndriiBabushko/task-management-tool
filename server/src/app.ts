@@ -46,7 +46,6 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', corsOrigin);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
-  res.setHeader('Content-Type', 'application/json');
 
   next();
 });
@@ -55,7 +54,7 @@ app.use(bodyParser.json({ limit: '10MB' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use('/uploads', express.static(path.join(dirname(fileURLToPath(import.meta.url)), 'uploads')));
+app.use('/uploads', express.static(path.join(dirname(dirname(fileURLToPath(import.meta.url))), 'uploads')));
 
 app.use('/api/users', usersRouter);
 
@@ -72,6 +71,7 @@ app.use('/api/roles', rolesRouter);
 app.use('/api/other', otherRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(req.path);
   return next(new HttpError("Couldn't find this route.", 404));
 });
 
