@@ -41,14 +41,16 @@ const getTasks = async (req: Request, res: Response, next: NextFunction) => {
 
 const createTask = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
 
     if (!errors.isEmpty()) {
       next(HttpError.BadRequest('Create task validation error. Please, check your credentials.', errors.array()));
     }
 
+    const imagePath = req.file?.filename ? `uploads/task/${req.file.filename}` : undefined;
     const { id: creatorID } = req.userData;
-    const taskData = await TaskService.createTask(creatorID, req.body);
+
+    const taskData = await TaskService.createTask(creatorID, { ...req.body, image: imagePath });
 
     return res.status(200).json({ ...taskData, message: 'Task is successfully created!' });
   } catch (e) {
@@ -65,9 +67,10 @@ const updateTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
     }
 
     const taskID: string = req.params.taskID;
+    const imagePath = req.file?.filename ? `uploads/task/${req.file.filename}` : undefined;
     const { id: userID } = req.userData;
 
-    const taskData = await TaskService.updateTask(taskID, userID, req.body);
+    const taskData = await TaskService.updateTask(taskID, userID, { ...req.body, image: imagePath });
 
     return res.status(200).json({ ...taskData, message: 'Task is successfully updated!' });
   } catch (e) {

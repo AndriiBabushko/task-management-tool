@@ -4,9 +4,10 @@ export default class TaskDto {
   description: string;
   creationDate: Date;
   deadlineDate: Date;
-  creator: string;
-  tags: string[];
-  categories: string[];
+  image: string;
+  creator;
+  tags: [];
+  categories: [];
   access: string;
   isCompleted: boolean;
 
@@ -16,6 +17,7 @@ export default class TaskDto {
     this.description = model.description;
     this.creationDate = model.creationDate;
     this.deadlineDate = model.deadlineDate;
+    this.image = model.image;
     this.creator = model.creator;
     this.tags = model.tags;
     this.categories = model.categories;

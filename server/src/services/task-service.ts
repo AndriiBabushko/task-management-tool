@@ -7,13 +7,14 @@ import TaskDto from '../DTO/task-dto.js';
 import { ITask } from '../ts/interfaces/ITask.js';
 import { ClientSession, Document, startSession, Types } from 'mongoose';
 import { IUser } from '../ts/interfaces/IUser.js';
+import ImageService from './image-service.js';
 
 class TaskService {
   async getTasks() {
     let tasks;
 
     try {
-      tasks = await TaskModel.find();
+      tasks = await TaskModel.find().populate(['creator', 'tags', 'categories']);
     } catch (e) {
       throw new HttpError('Something went wrong while fetching tasks data from DB.', 500);
     }
@@ -28,7 +29,7 @@ class TaskService {
     let task;
 
     try {
-      task = await TaskModel.findById(taskID).populate('creator');
+      task = await TaskModel.findById(taskID).populate(['creator', 'tags', 'categories']);
     } catch (e) {
       throw new HttpError('Something went wrong while searching for some task by task ID.', 500);
     }
@@ -45,7 +46,7 @@ class TaskService {
     let tasks;
 
     try {
-      tasks = await TaskModel.find({ creator: creatorID });
+      tasks = await TaskModel.find({ creator: creatorID }).populate(['creator', 'tags', 'categories']);
     } catch (error) {
       throw new HttpError('Something went wrong while searching for some tasks by creator ID.', 500);
     }
@@ -60,7 +61,7 @@ class TaskService {
     };
   }
 
-  private async checkTaskData({ deadlineDate, tags, categories }, creatorID = null) {
+  private async checkTaskData({ deadlineDate, tags, categories }: ITask, creatorID = null) {
     if (new Date(deadlineDate).getTime() <= new Date().getTime())
       throw new HttpError('Task deadline date is invalid!', 422);
 
@@ -79,7 +80,7 @@ class TaskService {
       if (!identifiedCreator) throw new HttpError("Couldn't find task creator for provided id.", 404);
     }
 
-    if (categories) {
+    if (categories && categories.length > 0) {
       try {
         identifiedCategories = await Promise.all(
           categories.map(async (c) => {
@@ -99,7 +100,7 @@ class TaskService {
       }
     }
 
-    if (tags) {
+    if (tags && Array.isArray(tags) && tags.length > 0) {
       try {
         identifiedTags = await Promise.all(
           tags.map(async (t) => {
@@ -128,13 +129,18 @@ class TaskService {
     };
   }
 
-  async createTask(creatorID: string, { title, description, deadlineDate, tags, categories, access }: ITask) {
+  async createTask(creatorID: string, { title, description, deadlineDate, image, tags, categories, access }: ITask) {
     let createdTask, taskCheck;
+
+    if (tags && !Array.isArray(tags)) tags = Array(tags);
+    if (categories && !Array.isArray(categories)) categories = Array(categories);
+    // if (tags && typeof tags === 'string') tags = JSON.parse(tags);
+    // if (categories && typeof categories === 'string') categories = JSON.parse(categories);
 
     try {
       taskCheck = await this.checkTaskData({ deadlineDate, tags, categories }, creatorID);
     } catch (e) {
-      throw new HttpError(e.message, e.status);
+      throw e;
     }
 
     if (!(taskCheck instanceof HttpError)) {
@@ -145,11 +151,13 @@ class TaskService {
           creationDate: new Date(),
           deadlineDate,
           creator: creatorID,
+          image,
           tags,
           categories,
           access,
         });
       } catch (e) {
+        console.log(e);
         throw new HttpError('Creating task failed!', 500);
       }
 
@@ -178,14 +186,17 @@ class TaskService {
   async updateTask(
     taskID: string,
     userID: string,
-    { title, description, deadlineDate, tags, categories, access, isCompleted }: ITask,
+    { title, description, deadlineDate, image, tags, categories, access, isCompleted }: ITask,
   ) {
     let taskCheck;
+
+    if (tags && !Array.isArray(tags)) tags = Array(tags);
+    if (categories && !Array.isArray(categories)) categories = Array(categories);
 
     try {
       taskCheck = await this.checkTaskData({ deadlineDate, tags, categories });
     } catch (e) {
-      throw new HttpError(e.message, e.status);
+      throw new HttpError(e.message, 500);
     }
 
     if (!(taskCheck instanceof HttpError)) {
@@ -205,11 +216,19 @@ class TaskService {
         throw new HttpError("No access to change task. Different user and creator id's.", 404);
       }
 
+      ImageService.deleteImage(updatedTask, 'uploads/task/no_task_image.png');
+
+      console.log(tags);
+      console.log(categories);
+
       if (title) updatedTask.title = title;
       if (description) updatedTask.description = description;
       if (deadlineDate) updatedTask.deadlineDate = deadlineDate;
+      if (image) updatedTask.image = image;
       if (tags) updatedTask.tags = tags;
+      else updatedTask.tags = [];
       if (categories) updatedTask.categories = categories;
+      else updatedTask.categories = [];
       if (access) updatedTask.access = access;
       if (isCompleted) updatedTask.isCompleted = isCompleted;
 
@@ -248,6 +267,8 @@ class TaskService {
     if (deletedTask.creator._id != userID) {
       throw new HttpError("No access to delete task. Different user and creator id's.", 404);
     }
+
+    ImageService.deleteImage(deletedTask, 'uploads/task/no_task_image.png');
 
     try {
       const session: ClientSession = await startSession();
