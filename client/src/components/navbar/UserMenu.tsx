@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useContext } from 'react';
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { FiChevronDown, FiLogOut, FiSettings, FiUser } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { Paths } from '../../paths';
 import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { observer } from 'mobx-react-lite';
+import { API_URL } from '../../app/utils/axios';
 
 const userMenu = [
   {
@@ -28,6 +29,7 @@ const userMenu = [
 export const UserMenu: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
   const { userStore, uiActionsStore } = rootStore;
+  const userImage = `http://localhost:3000/${userStore.user.image}`;
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -37,7 +39,10 @@ export const UserMenu: FC = observer(() => {
            text-white hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white 
            focus-visible:ring-opacity-75 active:bg-opacity-50`}
         >
-          <FiUser size={24} />
+          <div className={`w-6 h-full`}>
+            {userImage ? <img src={userImage} alt="User Image" className={`rounded-3xl w-full h-full`} /> : <FiUser size={24} />}
+          </div>
+
           <FiChevronDown className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100" aria-hidden="true" />
         </Menu.Button>
       </div>
@@ -55,13 +60,19 @@ export const UserMenu: FC = observer(() => {
           className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-black
          bg-opacity-90 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
         >
-          <div className="px-4 py-3" role="none">
-            <p className="text-sm text-gray-900 dark:text-white" role="none">
-              {userStore.user.surname} {userStore.user.name}
-            </p>
-            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-              {userStore.user.email}
-            </p>
+          <div className="flex justify-between px-3 py-4">
+            <div className={`flex justify-center items-center w-8 h-100`}>
+              {userImage ? <img src={userImage} alt="User Image" className={`rounded-3xl`} /> : <FiUser size={24} />}
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-900 dark:text-white">
+                {userStore.user.surname} {userStore.user.name}
+              </p>
+              <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                {userStore.user.email}
+              </p>
+            </div>
           </div>
           {userMenu.map((menu) => {
             return (

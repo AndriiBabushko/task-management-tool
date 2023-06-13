@@ -9,11 +9,13 @@ import { HiMenuAlt2 } from 'react-icons/hi';
 import { AiOutlineHome, AiOutlineTags } from 'react-icons/ai';
 import { FiUsers } from 'react-icons/fi';
 import { SiOpenaccess } from 'react-icons/si';
+import { FcStatistics } from 'react-icons/fc';
+import { BiStats } from 'react-icons/bi';
 
 const pages = [
   {
     name: 'Home',
-    to: Paths.root,
+    to: Paths.home,
     icon: <AiOutlineHome />,
   },
   {
@@ -46,6 +48,11 @@ const pages = [
     to: Paths.roles,
     icon: <SiOpenaccess />,
   },
+  {
+    name: 'Statistics',
+    to: Paths.statistics,
+    icon: <BiStats />,
+  },
 ];
 
 export const AdminNavbar: FC = () => {
@@ -57,7 +64,7 @@ export const AdminNavbar: FC = () => {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full bg-green-600 border-b-2 border-green-700 dark:bg-green-700 dark:border-green-800">
+      <nav className="fixed top-0 z-30 w-full bg-green-600 border-b-2 border-green-700 dark:bg-green-700 dark:border-green-800">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-start">
@@ -87,25 +94,29 @@ export const AdminNavbar: FC = () => {
       </nav>
 
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
+        className={`fixed top-0 left-0 z-20 w-52 h-screen transition-transform ${
           isNavbarOpen ? 'translate-x-0' : '-translate-x-full'
         } bg-green-600 border-r-2 border-green-700 sm:translate-x-0 dark:bg-green-700 dark:border-green-800`}
       >
-        <div className="h-full px-3 pb-4 overflow-y-auto bg-green-700">
+        <div className="h-full px-3 pb-4 overflow-y-auto bg-green-700 pt-20">
           <div className="space-y-2 font-medium">
             {pages.map((page) => {
               return (
                 <NavLink key={page.name} to={page.to}>
-                  <div
-                    className={`bg-black bg-opacity-20 my-2 rounded-lg hover:bg-opacity-50 focus:outline-none 
-                    focus-visible:ring-2 transition-colors duration-300 ease-in-out focus-visible:ring-white 
-                    focus-visible:ring-opacity-75 active:bg-opacity-50`}
-                  >
-                    <div className={`flex items-center p-2`}>
-                      <span>{page.icon}</span>
-                      <span className="ml-3">{page.name}</span>
-                    </div>
-                  </div>
+                  {({ isActive }) => {
+                    return (
+                      <div
+                        className={`bg-black bg-opacity-20 my-2 rounded-lg hover:bg-opacity-50 focus:outline-none 
+                        focus-visible:ring-2 transition-colors duration-300 ease-in-out focus-visible:ring-white 
+                        ${isActive ? `bg-opacity-50` : 'bg-opacity-20 '} focus-visible:ring-opacity-75 active:bg-opacity-50`}
+                      >
+                        <div className={`flex items-center p-2`}>
+                          <span>{page.icon}</span>
+                          <span className="ml-3">{page.name}</span>
+                        </div>
+                      </div>
+                    );
+                  }}
                 </NavLink>
               );
             })}
@@ -113,31 +124,9 @@ export const AdminNavbar: FC = () => {
         </div>
       </aside>
 
-      <div className="p-4 sm:ml-64">
-        <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+      <div className="py-4 px-2 sm:ml-52">
+        <div className="mt-14">
           <Outlet />
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center h-48 mb-4 rounded bg-gray-50 dark:bg-gray-800">
-            <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-          </div>
         </div>
       </div>
     </>
