@@ -25,6 +25,8 @@ const taskHandlers: ValidationChain[] = [
   body('access').optional().isString(),
 ];
 
+router.get('/statistics', AuthMiddleware, tasksControllers.taskStatistics);
+
 router.get('/:taskID', tasksControllers.getTaskById);
 
 router.get('/user/:creatorID', tasksControllers.getTasksByCreatorId);

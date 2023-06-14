@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import { validationResult } from 'express-validator';
 
 import HttpError from '../exceptions/http-error.js';
 import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
 import TaskService from '../services/task-service.js';
-import { validationResult } from 'express-validator';
 
 const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -66,7 +66,7 @@ const updateTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
       next(HttpError.BadRequest('Update task validation error. Please, check your credentials.', errors.array()));
     }
 
-    const taskID: string = req.params.taskID;
+    const taskID = req.params.taskID;
     const imagePath = req.file?.filename ? `uploads/task/${req.file.filename}` : undefined;
     const { id: userID } = req.userData;
 
@@ -94,4 +94,14 @@ const deleteTaskByID = async (req: IUserDataRequest, res: Response, next: NextFu
   }
 };
 
-export { getTaskById, getTasksByCreatorId, getTasks, createTask, updateTaskByID, deleteTaskByID };
+const taskStatistics = async (req: IUserDataRequest, res: Response, next: NextFunction) => {
+  try {
+    const taskStatistics = await TaskService.getStatistics();
+
+    return res.status(200).json({ ...taskStatistics, message: 'Successfully collected task stats!' });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export { getTaskById, getTasksByCreatorId, getTasks, createTask, updateTaskByID, deleteTaskByID, taskStatistics };

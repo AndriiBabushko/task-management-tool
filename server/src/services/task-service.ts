@@ -8,6 +8,11 @@ import { ITask } from '../ts/interfaces/ITask.js';
 import { ClientSession, Document, startSession, Types } from 'mongoose';
 import { IUser } from '../ts/interfaces/IUser.js';
 import ImageService from './image-service.js';
+import {
+  isCompletedCountPipeline,
+  theOldestTaskPipeline,
+  userWithMaxTasksCreatedPipeline,
+} from '../aggregates/task-aggregate.js';
 
 class TaskService {
   async getTasks() {
@@ -129,7 +134,10 @@ class TaskService {
     };
   }
 
-  async createTask(creatorID: string, { title, description, deadlineDate, image, tags, categories, access }: ITask) {
+  async createTask(
+    creatorID: Types.ObjectId,
+    { title, description, deadlineDate, image, tags, categories, access }: ITask,
+  ) {
     let createdTask, taskCheck;
 
     if (tags && !Array.isArray(tags)) tags = Array(tags);
@@ -185,7 +193,7 @@ class TaskService {
 
   async updateTask(
     taskID: string,
-    userID: string,
+    userID: Types.ObjectId,
     { title, description, deadlineDate, image, tags, categories, access, isCompleted }: ITask,
   ) {
     let taskCheck;
@@ -249,7 +257,7 @@ class TaskService {
     throw new HttpError(taskCheck.message, taskCheck.status);
   }
 
-  async deleteTask(taskID: string, userID: string) {
+  async deleteTask(taskID: string, userID: Types.ObjectId) {
     let deletedTask;
 
     try {
@@ -283,6 +291,26 @@ class TaskService {
 
     return {
       success: true,
+    };
+  }
+
+  async getStatistics() {
+    let completedTasksCount, theBestUserWithMaxTasks, theOldestTask;
+
+    try {
+      completedTasksCount = await TaskModel.aggregate(isCompletedCountPipeline);
+      theBestUserWithMaxTasks = await TaskModel.aggregate(userWithMaxTasksCreatedPipeline);
+      theOldestTask = await TaskModel.aggregate(theOldestTaskPipeline);
+    } catch (e) {
+      console.log(e);
+      throw new HttpError('Something went wrong while collecting task stats.', 500);
+    }
+
+    return {
+      success: true,
+      theBestUser: theBestUserWithMaxTasks,
+      completedTasksCount,
+      theOldestTask,
     };
   }
 }

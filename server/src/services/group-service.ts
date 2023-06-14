@@ -115,7 +115,7 @@ class GroupService {
     throw new HttpError(groupCheck.message, groupCheck.status);
   }
 
-  async updateGroup(groupID: string, userID: string, { name, description, image, users, access }: IGroup) {
+  async updateGroup(groupID: string, userID: Types.ObjectId, { name, description, image, users, access }: IGroup) {
     let groupCheck;
 
     try {
@@ -164,7 +164,7 @@ class GroupService {
     throw new HttpError(groupCheck.message, groupCheck.status);
   }
 
-  async deleteGroup(groupID: string, userID: string) {
+  async deleteGroup(groupID: string, userID: Types.ObjectId) {
     let deletedGroup;
 
     try {

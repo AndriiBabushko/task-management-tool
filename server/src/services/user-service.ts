@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientSession, startSession, Types } from 'mongoose';
-import { existsSync, unlinkSync } from 'fs';
 
 import { mongooseModel as UserModel } from '../models/user-model.js';
 import { mongooseModel as RoleModel } from '../models/role-model.js';
@@ -14,6 +13,11 @@ import HttpError from '../exceptions/http-error.js';
 import { IUser } from '../ts/interfaces/IUser.js';
 import RoleService from './role-service.js';
 import ImageService from './image-service.js';
+import {
+  notActivatedUsersPipeline,
+  usersByRolesPipeline,
+  usersWithoutTasksPipeline,
+} from '../aggregates/user-aggregate.js';
 
 class UserService {
   async signup({ name, surname, username, email, password, image }: IUser) {
@@ -361,6 +365,26 @@ class UserService {
     }
 
     return true;
+  }
+
+  async getStatistics() {
+    let notActivatedUsers, usersWithoutTasks, usersByRoles;
+
+    try {
+      notActivatedUsers = await UserModel.aggregate(notActivatedUsersPipeline);
+      usersWithoutTasks = await UserModel.aggregate(usersWithoutTasksPipeline);
+      usersByRoles = await UserModel.aggregate(usersByRolesPipeline);
+    } catch (e) {
+      console.log(e);
+      throw new HttpError('Something went wrong while collecting user stats.', 500);
+    }
+
+    return {
+      success: true,
+      usersWithoutTasks,
+      notActivatedUsers,
+      usersByRoles,
+    };
   }
 }
 

@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 
 import HttpError from '../exceptions/http-error.js';
-import { IUser } from '../ts/interfaces/IUser.js';
 import UserService from '../services/user-service.js';
 import { IUserDataRequest } from '../ts/interfaces/IUserDataRequest.js';
 
@@ -148,9 +147,11 @@ const resendActivationMail = async (req: IUserDataRequest, res: Response, next: 
   }
 };
 
-const uploadImage = (req: Request, res: Response, next: NextFunction) => {
+const userStatistics = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.send('Image Uploaded!');
+    const userStatistics = await UserService.getStatistics();
+
+    return res.status(200).json({ ...userStatistics, message: 'Successfully collected user stats!' });
   } catch (e) {
     next(e);
   }
@@ -165,6 +166,6 @@ export {
   logout,
   updateUser,
   deleteUser,
-  uploadImage,
   resendActivationMail,
+  userStatistics,
 };

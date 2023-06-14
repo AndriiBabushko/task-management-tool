@@ -17,6 +17,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+router.get('/statistics', AuthMiddleware, userController.userStatistics);
+
 router.post(
   '/signup',
   [
@@ -77,7 +79,5 @@ router.get('/refresh', userController.refreshLink);
 router.get('/', AuthMiddleware, userController.getUsers);
 
 router.get('/resendMail', AuthMiddleware, userController.resendActivationMail);
-
-router.post('/upload', upload.single('image'), userController.uploadImage);
 
 export { router };
