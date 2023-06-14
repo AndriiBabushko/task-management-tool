@@ -129,7 +129,7 @@ export const UpdateTaskPage: FC = observer(() => {
                 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-800`}
                 type="text"
                 id="title"
-                value={taskStore.task.title}
+                defaultValue={taskStore.task.title}
                 {...register('title', {
                   minLength: {
                     value: 3,
@@ -153,7 +153,7 @@ export const UpdateTaskPage: FC = observer(() => {
                 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-800`}
                 type="text"
                 id="description"
-                value={taskStore.task.description}
+                defaultValue={taskStore.task.description}
                 {...register('description')}
               />
 
@@ -169,7 +169,7 @@ export const UpdateTaskPage: FC = observer(() => {
                 {...register('deadlineDate', {
                   required: 'Deadline task date is required',
                 })}
-                // defaultValue={new Date(taskStore.task.deadlineDate).toISOString().substring(0, 10)}
+                defaultValue={new Date(taskStore.task.deadlineDate).toISOString().substring(0, 10)}
                 className={`appearance-none border-2 border-gray-500 hover:border-green-700 rounded w-full py-2 px-3 
                 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-800`}
               />

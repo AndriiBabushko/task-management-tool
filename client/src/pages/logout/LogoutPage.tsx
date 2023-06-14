@@ -28,8 +28,14 @@ export const LogoutPage: FC = observer(() => {
       show={uiActionsStore.isLogoutModalOpen}
       onCloseModal={closeModal}
     >
-      <CustomButton buttonText={'Cancel'} buttonType={'button'} onClickHandler={closeModal} />
-      <CustomButton buttonText={'Logout'} buttonType={'button'} onClickHandler={logoutHandler} />
+      <CustomButton buttonText={'Cancel'} buttonType={'button'} onClickHandler={closeModal} bgColor={`bg-green-700`} />
+      <CustomButton
+        buttonText={'Logout'}
+        buttonType={'button'}
+        onClickHandler={logoutHandler}
+        bgColor={`bg-red-700`}
+        hoverColor={`hover:bg-red-800`}
+      />
     </Modal>
   );
 });

@@ -3,14 +3,16 @@ import { makeAutoObservable } from 'mobx';
 import AuthService from '../services/AuthService';
 import RootStore from './rootStore';
 import UserService from '../services/UserService';
-import { IUser } from '../models/interfaces/IUser';
+import { PopulatedIUser } from '../models/interfaces/PopulatedIUser';
 import { AxiosResponse } from 'axios';
+import { UserStatisticsResponse } from '../models/response/UserStatisticsResponse';
 
 export default class UserStore {
-  user = {} as IUser;
+  user = {} as PopulatedIUser;
   isAuth = false;
   rootStore: RootStore;
   isAdmin = false;
+  statistics = {} as UserStatisticsResponse;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -25,11 +27,15 @@ export default class UserStore {
     this.isAdmin = bool;
   }
 
-  setUser(user: IUser) {
+  setUser(user: PopulatedIUser) {
     this.user = user;
   }
 
-  async login({ email, password }: IUser) {
+  setStatistics(statistics: UserStatisticsResponse) {
+    this.statistics = statistics;
+  }
+
+  async login({ email, password }: PopulatedIUser) {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.login(email, password);
@@ -47,7 +53,7 @@ export default class UserStore {
     }
   }
 
-  async signup(userData: IUser) {
+  async signup(userData: PopulatedIUser) {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       const response = await AuthService.signup(userData);
@@ -72,7 +78,7 @@ export default class UserStore {
       localStorage.removeItem('token');
       this.setAuth(false);
       this.setIsAdmin(false);
-      this.setUser({} as IUser);
+      this.setUser({} as PopulatedIUser);
       return response;
     } catch (error) {
       throw error;
@@ -105,7 +111,7 @@ export default class UserStore {
       const response = await UserService.deleteUser(userID);
       localStorage.removeItem('token');
       this.setAuth(false);
-      this.setUser({} as IUser);
+      this.setUser({} as PopulatedIUser);
       return response;
     } catch (error) {
       throw error;
@@ -118,6 +124,19 @@ export default class UserStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       return await UserService.resendActivationMail();
+    } catch (error) {
+      throw error;
+    } finally {
+      this.rootStore.uiActionsStore.setIsPageLoading(false);
+    }
+  }
+
+  async getStatistics() {
+    this.rootStore.uiActionsStore.setIsPageLoading(true);
+    try {
+      const response = await UserService.getStatistics();
+      this.setStatistics(response.data);
+      return response;
     } catch (error) {
       throw error;
     } finally {

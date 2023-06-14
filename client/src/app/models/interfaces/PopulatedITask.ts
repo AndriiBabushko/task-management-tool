@@ -1,4 +1,4 @@
-import { IUser } from './IUser';
+import { PopulatedIUser } from './PopulatedIUser';
 import { ITag } from './ITag';
 import { ICategory } from './ICategory';
 
@@ -9,7 +9,7 @@ export interface PopulatedITask {
   creationDate: Date;
   deadlineDate: Date;
   image: string;
-  creator: IUser;
+  creator: PopulatedIUser;
   tags: ITag[];
   categories: ICategory[];
   access: string;

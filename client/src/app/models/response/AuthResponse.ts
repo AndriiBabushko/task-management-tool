@@ -1,9 +1,9 @@
-import { IUser } from '../interfaces/IUser';
+import { PopulatedIUser } from '../interfaces/PopulatedIUser';
 
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: IUser;
+  user: PopulatedIUser;
   message: string;
   success: boolean;
   errors: [];

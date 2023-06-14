@@ -1,7 +1,7 @@
 import React, { FC, useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink } from 'react-router-dom';
-import { IUser } from '../../app/models/interfaces/IUser';
+import { PopulatedIUser } from '../../app/models/interfaces/PopulatedIUser';
 import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { observer } from 'mobx-react-lite';
@@ -21,7 +21,7 @@ export const LoginForm: FC = observer(() => {
       className={`text-black`}
       onSubmit={handleSubmit(async (data) => {
         userStore
-          .login({ email: data.email, password: data.password } as IUser)
+          .login({ email: data.email, password: data.password } as PopulatedIUser)
           .then((value) => {
             console.log(value);
             uiActionsStore.setNotification({

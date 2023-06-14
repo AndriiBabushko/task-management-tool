@@ -4,6 +4,7 @@ import { UserResponse } from '../models/response/UserResponse';
 import { UsersResponse } from '../models/response/UsersResponse';
 import { DeleteResponse } from '../models/response/DeleteResponse';
 import { ResendMailResponse } from '../models/response/ResendMailResponse';
+import { UserStatisticsResponse } from '../models/response/UserStatisticsResponse';
 
 export default class UserService {
   static async fetchUsers(): Promise<AxiosResponse<UsersResponse>> {
@@ -19,6 +20,10 @@ export default class UserService {
   }
 
   static async resendActivationMail(): Promise<AxiosResponse<ResendMailResponse>> {
-    return await axiosInstance.get('/users/resendMail');
+    return await axiosInstance.get<ResendMailResponse>('/users/resendMail');
+  }
+
+  static async getStatistics(): Promise<AxiosResponse<UserStatisticsResponse>> {
+    return await axiosInstance.get<UserStatisticsResponse>('/users/statistics');
   }
 }

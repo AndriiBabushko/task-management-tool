@@ -60,6 +60,9 @@ const UpdateTaskPage = loadable(() => import('../pages/tasks/UpdateTaskPage'), {
 const DeleteTaskPage = loadable(() => import('../pages/tasks/DeleteTaskPage'), {
   resolveComponent: (components) => components.DeleteTaskPage,
 });
+const AdminStatisticsPage = loadable(() => import('../pages/admin/AdminStatisticsPage'), {
+  resolveComponent: (components) => components.AdminStatisticsPage,
+});
 
 const UserGroupsPage = loadable(() => import('../pages/groups/UserGroupsPage'), {
   resolveComponent: (components) => components.UserGroupsPage,
@@ -138,6 +141,7 @@ export const App: FC = observer(() => {
                 )
               }
             />
+
             <Route
               path={Paths.home}
               element={
@@ -150,6 +154,20 @@ export const App: FC = observer(() => {
                 )
               }
             />
+
+            <Route
+              path={Paths.statistics}
+              element={
+                !userStore.isAuth ? (
+                  <Navigate to={Paths.login} replace={true} />
+                ) : !userStore.user.isActivated ? (
+                  <Navigate to={Paths.activation} replace={true} />
+                ) : (
+                  <AdminStatisticsPage />
+                )
+              }
+            />
+
             <Route
               path={Paths.tasks}
               element={

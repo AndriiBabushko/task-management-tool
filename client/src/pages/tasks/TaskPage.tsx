@@ -57,7 +57,7 @@ export const TaskPage: FC = observer(() => {
           message={'View info about task or click on button below or somewhere outside form to go back.'}
           show={isModalOpen}
           onCloseModal={openCloseModalHandler}
-          modalWidth={'lg'}
+          modalWidth={'md'}
         >
           <div className={`rounded-2xl bg-green-700 p-4 w-full`}>
             <div className={`grid grid-cols-2 grid-rows-1 gap-4 mb-4`}>

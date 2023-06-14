@@ -40,9 +40,18 @@ export const userWithMaxTasksCreatedPipeline: PipelineStage[] = [
     $unwind: '$user',
   },
   {
+    $lookup: {
+      from: 'tasks',
+      localField: '_id',
+      foreignField: 'creator',
+      as: 'tasks',
+    },
+  },
+  {
     $project: {
-      username: '$user.username',
+      user: 1,
       taskCount: '$count',
+      tasks: 1,
     },
   },
 ];

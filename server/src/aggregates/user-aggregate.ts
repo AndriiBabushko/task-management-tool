@@ -36,8 +36,20 @@ export const usersByRolesPipeline: PipelineStage[] = [
     $unwind: '$roles',
   },
   {
+    $lookup: {
+      from: 'roles',
+      localField: 'roles',
+      foreignField: '_id',
+      as: 'role',
+    },
+  },
+  {
+    $unwind: '$role',
+  },
+  {
     $group: {
       _id: '$roles',
+      name: { $first: '$role.name' },
       count: { $sum: 1 },
     },
   },

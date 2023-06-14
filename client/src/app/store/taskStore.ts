@@ -3,11 +3,13 @@ import { ITask } from '../models/interfaces/ITask';
 import RootStore from './rootStore';
 import TaskService from '../services/TaskService';
 import { PopulatedITask } from '../models/interfaces/PopulatedITask';
+import { TaskStatisticsResponse } from '../models/response/TaskStatisticsResponse';
 
 export default class TaskStore {
   tasks: PopulatedITask[] = [];
   task = {} as PopulatedITask;
   rootStore: RootStore;
+  statistics = {} as TaskStatisticsResponse;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -20,6 +22,10 @@ export default class TaskStore {
 
   setTasks(tasks: PopulatedITask[]) {
     this.tasks = tasks;
+  }
+
+  setStatistics(statistics: TaskStatisticsResponse) {
+    this.statistics = statistics;
   }
 
   async getTasks() {
@@ -74,6 +80,19 @@ export default class TaskStore {
     this.rootStore.uiActionsStore.setIsPageLoading(true);
     try {
       return await TaskService.delete(taskID);
+    } catch (error) {
+      throw error;
+    } finally {
+      this.rootStore.uiActionsStore.setIsPageLoading(false);
+    }
+  }
+
+  async getStatistics() {
+    this.rootStore.uiActionsStore.setIsPageLoading(true);
+    try {
+      const response = await TaskService.getStatistics();
+      this.setStatistics(response.data);
+      return response;
     } catch (error) {
       throw error;
     } finally {

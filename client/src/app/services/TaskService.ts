@@ -4,6 +4,7 @@ import { axiosInstance } from '../utils/axios';
 import { TasksResponse } from '../models/response/TasksResponse';
 import { ITask } from '../models/interfaces/ITask';
 import { DeleteResponse } from '../models/response/DeleteResponse';
+import { TaskStatisticsResponse } from '../models/response/TaskStatisticsResponse';
 
 export default class TaskService {
   static async fetchTasks(): Promise<AxiosResponse<TasksResponse>> {
@@ -24,5 +25,9 @@ export default class TaskService {
 
   static async delete(taskID: string): Promise<AxiosResponse<DeleteResponse>> {
     return axiosInstance.delete<TaskResponse>(`/tasks/${taskID}`);
+  }
+
+  static async getStatistics(): Promise<AxiosResponse<TaskStatisticsResponse>> {
+    return await axiosInstance.get<TaskStatisticsResponse>('/tasks/statistics');
   }
 }

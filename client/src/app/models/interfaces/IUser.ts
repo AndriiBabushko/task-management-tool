@@ -1,7 +1,5 @@
-import { IRole } from './IRole';
-import { IGroup } from './IGroup';
-
 export interface IUser {
+  _id: string;
   id: string;
   name: string;
   surname: string;
@@ -10,7 +8,7 @@ export interface IUser {
   password: string;
   image: string;
   tasks: string[];
-  roles: IRole[];
-  groups: IGroup[];
+  roles: string[];
+  groups: string[];
   isActivated: boolean;
 }

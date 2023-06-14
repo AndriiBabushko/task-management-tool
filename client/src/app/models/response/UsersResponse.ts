@@ -1,6 +1,6 @@
-import { IUser } from '../interfaces/IUser';
+import { PopulatedIUser } from '../interfaces/PopulatedIUser';
 
 export interface UsersResponse {
   success: boolean;
-  users: IUser[];
+  users: PopulatedIUser[];
 }

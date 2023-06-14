@@ -2,14 +2,14 @@ import axios, { AxiosResponse } from 'axios';
 import { API_URL, axiosInstance } from '../utils/axios';
 import { AuthResponse } from '../models/response/AuthResponse';
 import { LogoutResponse } from '../models/response/LogoutResponse';
-import { IUser } from '../models/interfaces/IUser';
+import { PopulatedIUser } from '../models/interfaces/PopulatedIUser';
 
 export default class AuthService {
   static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
     return await axiosInstance.post<AuthResponse>('/users/login', { email, password });
   }
 
-  static async signup(userData: IUser): Promise<AxiosResponse<AuthResponse>> {
+  static async signup(userData: PopulatedIUser): Promise<AxiosResponse<AuthResponse>> {
     return await axiosInstance.post<AuthResponse>(
       '/users/signup',
       { ...userData },
