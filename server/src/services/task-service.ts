@@ -165,7 +165,6 @@ class TaskService {
           access,
         });
       } catch (e) {
-        console.log(e);
         throw new HttpError('Creating task failed!', 500);
       }
 
@@ -225,9 +224,6 @@ class TaskService {
       }
 
       ImageService.deleteImage(updatedTask, 'uploads/task/no_task_image.png');
-
-      console.log(tags);
-      console.log(categories);
 
       if (title) updatedTask.title = title;
       if (description) updatedTask.description = description;

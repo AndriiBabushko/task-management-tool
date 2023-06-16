@@ -4,14 +4,11 @@ import { RootStoreContext } from '../../app/context/rootStoreContext';
 import { Modal } from '../../components/custom/Modal';
 import { NavLink } from 'react-router-dom';
 import { Paths } from '../../paths';
+import { CustomButton } from '../../components/custom/CustomButton';
 
 export const AccountActivationPage: FC = observer(() => {
   const rootStore = useContext(RootStoreContext);
   const { userStore, uiActionsStore } = rootStore;
-
-  const buttonClasses =
-    'inline-flex justify-center rounded-md border border-transparent px-4 py-2 mt-2 text-sm font-medium bg-green-600 ' +
-    'hover:bg-opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 w-full';
 
   const onClickNoAccountHandler = () => {
     userStore
@@ -70,11 +67,21 @@ export const AccountActivationPage: FC = observer(() => {
       show={!userStore.user.isActivated}
       onCloseModal={closeModalHandler}
     >
-      <button type={`button`} onClick={resendActivationMailHandler} className={buttonClasses}>
-        Resend activation mail
-      </button>
+      <CustomButton
+        buttonText={'Resend activation mail'}
+        buttonType={'button'}
+        onClickHandler={resendActivationMailHandler}
+        bgColor={`bg-green-700`}
+        hoverColor={`hover:bg-green-800`}
+      />
 
-      <NavLink to={Paths.login} onClick={onClickNoAccountHandler} className={buttonClasses}>
+      <NavLink
+        to={Paths.login}
+        onClick={onClickNoAccountHandler}
+        className={`text-center w-full my-2 py-2 px-4 rounded-lg focus:outline-none focus-visible:ring-2 
+        transition-colors duration-300 ease-in-out focus-visible:ring-white focus-visible:ring-opacity-75 
+        active:bg-opacity-50 bg-green-700 hover:bg-green-800`}
+      >
         Click if the account was created by mistake
       </NavLink>
     </Modal>

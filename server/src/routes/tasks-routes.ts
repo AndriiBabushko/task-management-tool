@@ -11,7 +11,7 @@ const router: Router = Router();
 const storage = multer.diskStorage({
   destination: path.join(dirname(dirname(dirname(fileURLToPath(import.meta.url)))), 'uploads/task'),
   filename: (req, file, callback) => {
-    console.log(file);
+    // console.log(file);
     callback(null, file.fieldname + Date.now() + '.' + file.mimetype.split('/')[1]);
   },
 });

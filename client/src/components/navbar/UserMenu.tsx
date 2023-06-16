@@ -57,15 +57,15 @@ export const UserMenu: FC = observer(() => {
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items
-          className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-black
+          className="absolute right-0 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-black
          bg-opacity-90 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
         >
           <div className="flex justify-between px-3 py-4">
-            <div className={`flex justify-center items-center w-8 h-100`}>
+            <div className={`flex justify-center items-center w-12 h-100`}>
               {userImage ? <img src={userImage} alt="User Image" className={`rounded-3xl`} /> : <FiUser size={24} />}
             </div>
 
-            <div>
+            <div className={`flex flex-col justify-center items-center pl-2`}>
               <p className="text-sm text-gray-900 dark:text-white">
                 {userStore.user.surname} {userStore.user.name}
               </p>

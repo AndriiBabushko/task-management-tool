@@ -168,7 +168,6 @@ export const SignupForm: FC = observer(() => {
             id="password"
             {...register('password', {
               required: 'Password is required',
-              validate: (value) => value === watch('confirmPassword') || 'Passwords do not match',
               minLength: {
                 value: 3,
                 message: 'The password must contain at least 3 characters',
@@ -230,18 +229,18 @@ export const SignupForm: FC = observer(() => {
           Image
         </label>
         <input
-          className="block w-full mb-5 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
-           dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          className={`block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
+            focus:outline-none`}
           type="file"
           accept="image/*"
           {...register('image')}
         />
       </div>
 
-      <div className="flex items-center flex-col justify-between">
+      <div className="flex items-center flex-col justify-between text-white">
         <CustomButton buttonText={'Create a Task Spring Tool account'} buttonType={'submit'} />
 
-        <p className={`mt-5 mb-2`}>If you have an account</p>
+        <p className={`mb-2 text-black`}>If you have an account</p>
 
         <NavLink
           to={Paths.login}
