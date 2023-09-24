@@ -27,3 +27,5 @@ yarn-error.log*
 
 /docs/ProjectScheme.xlsx
 uploads
+.idea/*
+/.idea/dbnavigator.xml

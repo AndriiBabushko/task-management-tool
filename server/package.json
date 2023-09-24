@@ -15,7 +15,7 @@
     "build": "rimraf ./build && npx tsc",
     "start": "npm run build && node build/app",
     "lint": "npx eslint ./src",
-    "format": "mpx eslint ./src --fix"
+    "format": "npx eslint ./src --fix"
   },
   "repository": {
     "type": "git",

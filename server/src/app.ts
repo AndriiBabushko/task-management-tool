@@ -21,6 +21,7 @@ import RoleService from './services/role-service.js';
 dotenvConfig();
 const mongoURL: string | undefined = process.env.DB_HOST;
 const port: string | undefined = process.env.PORT;
+const corsLocalOrigin = process.env.CLIENT_URL_LOCAL;
 const corsOrigin = process.env.CLIENT_URL;
 
 const app: Express = express();
@@ -37,13 +38,13 @@ mongoose
   .catch((error) => console.log(error));
 
 const corsMiddleware = cors({
-  origin: [corsOrigin, 'http://127.0.0.1:3000'],
+  origin: [corsOrigin, corsLocalOrigin, 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
   credentials: true,
 });
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', corsOrigin);
+  res.header('Access-Control-Allow-Origin', [corsOrigin, corsLocalOrigin, 'http://127.0.0.1:3000']);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
 
@@ -53,6 +54,10 @@ app.use(corsMiddleware);
 app.use(bodyParser.json({ limit: '10MB' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.get('/', (req, res) => {
+  res.send('Hey this is my API running 🥳');
+});
 
 app.use('/uploads', express.static(path.join(dirname(dirname(fileURLToPath(import.meta.url))), 'uploads')));
 
